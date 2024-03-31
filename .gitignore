@@ -1,0 +1,10 @@
+bin
+tmp
+.env
+**/node_modules
+TODO.md
+**/dist
+bin
+tls/** 
+ui/html/**/*_templ.go
+ui/html/**/*_templ.txt

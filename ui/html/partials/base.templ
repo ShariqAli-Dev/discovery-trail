@@ -1,0 +1,31 @@
+package partials 
+
+import "github.com/shariqali-dev/discovery-trail/internal/types"
+
+templ BaseHTML(data types.TemplateData, jsFile string, scriptSources []string) {
+	<!DOCTYPE html>
+	<html data-theme="light" lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>Discovery Trail</title>
+			<link rel="stylesheet" type="text/css" href="/static/dist/global.css"/>
+			<script nonce={ data.Nonce } src="/static/dist/htmx.js"></script>
+			<script nonce={ data.Nonce } src="/static/dist/theme-change.js"></script>
+			<script nonce={ data.Nonce } src="https://cdn.jsdelivr.net/npm/lucide@0.294.0/dist/umd/lucide.min.js"></script>
+			<style nonce={ data.Nonce }>
+				.htmx-indicator{opacity:0;transition: opacity 200ms ease-in;}
+				.htmx-request .htmx-indicator{opacity:1}
+				.htmx-request.htmx-indicator{opacity:1}
+			</style>
+		</head>
+		<body class="h-[100svh] w-full flex flex-col bg-base-100">
+			{ children... }
+			// <script type="module" src="/static/assets/index.js"></script>
+			// for _, source := range scriptSources {
+			// 	<script src={ source }></script>
+			// }
+			// <script type="module" src={ "/static/dist/assets/" + jsFile + ".js" }></script>
+		</body>
+	</html>
+}

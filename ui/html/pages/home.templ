@@ -1,0 +1,37 @@
+package  pages
+
+import (
+	"github.com/shariqali-dev/discovery-trail/ui/html/partials"
+	"github.com/shariqali-dev/discovery-trail/internal/types"
+)
+
+templ Home(data types.TemplateData) {
+	@partials.BaseHTML(data, "home", nil) {
+		<header class="flex justify-between w-full max-w-5xl p-4 m-auto">
+			<a href="/">
+				<h1>Discovery Trail</h1>
+			</a>
+			<nav>
+				<a class="btn btn-link" href="/">Sign In</a>
+				<a class="btn btn-primary" href="/">Get Started</a>
+			</nav>
+		</header>
+		<main class="flex flex-col justify-around flex-1 w-full max-w-5xl p-4 m-auto md:flex-row">
+			<section>
+				<div>
+					<h2 class="text-5xl font-bold text-center primary-content md:text-start">Swiftly create & share modular courses with AI.</h2>
+					<br/>
+					<p class="text-xl text-center primary-content md:text-left">Interactive mini courses are great for using them as micro learning materials to educate yourself or a community.</p>
+					<br/>
+					<p class="text-xl text-center primary-content md:text-left">Realize your course ideas without information overload or procrastination with a no-brainer card structure.</p>
+					<div class="flex-col justify-center hidden pt-4 md:flex align-center w-[fit-content] mx-auto mt-8">
+						<a class="px-4 py-2 text-xl btn btn-primary" href="/">Try For Free</a>
+						<p class="text-sm text-center info-content">✓  No credit card required</p>
+					</div>
+				</div>
+			</section>
+			<section class="h-[60svh] w-[45rem] skeleton hidden md:block"></section>
+			<section class="flex-1 m-2 skeleton md:hidden"></section>
+		</main>
+	}
+}
