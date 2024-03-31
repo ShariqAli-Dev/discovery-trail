@@ -12,9 +12,9 @@ func (app *application) routes() http.Handler {
 
 	mux.Handle("GET /static/", http.FileServerFS(ui.Files))
 
-	standard := alice.New(app.recoverPanic, app.logRequest, app.generateNonce, app.commonHeaders)
-	dynamic := alice.New()
+	dynamic := alice.New(app.sessionManager.LoadAndSave)
 	mux.Handle("GET /{$}", dynamic.ThenFunc(app.home))
 
+	standard := alice.New(app.recoverPanic, app.logRequest, app.generateNonce, app.commonHeaders)
 	return standard.Then(mux)
 }

@@ -1,3 +1,5 @@
+sql:
+	mysql -D discovery_trail -u web -p
 templ:
 	templ generate --watch 
 css:

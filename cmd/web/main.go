@@ -4,41 +4,49 @@ import (
 	"crypto/tls"
 	"database/sql"
 	"flag"
-	"fmt"
-	"log"
 	"log/slog"
 	"net/http"
 	"os"
 	"time"
 
-	"github.com/joho/godotenv"
-	_ "github.com/tursodatabase/libsql-client-go/libsql"
+	"github.com/alexedwards/scs/mysqlstore"
+	"github.com/alexedwards/scs/v2"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type application struct {
-	logger *slog.Logger
+	logger         *slog.Logger
+	sessionManager *scs.SessionManager
 }
 
 func main() {
-	authToken := os.Getenv("AUTH_TOKEN")
-	dbName := os.Getenv("DB_NAME")
+	// authToken := os.Getenv("AUTH_TOKEN")
+	// dbName := os.Getenv("DB_NAME")
 	addr := flag.String("addr", ":4000", "HTTP network address")
 	prod := flag.Bool("prod", false, "Enable production")
+	dataSourceName := flag.String("dsn", "web:password@/discovery_trail?parseTime=true", "MySQL data source name")
 	flag.Parse()
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 		AddSource: true,
 	}))
 
-	db, err := openDB(dbName, authToken)
+	db, err := openDB(*dataSourceName)
+	// db, err := openTursoDB(dbName, authToken)
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
 	}
 	defer db.Close()
 
+	sessionManager := scs.New()
+	sessionManager.Store = mysqlstore.New(db)
+	sessionManager.Lifetime = 12 * time.Hour
+
 	app := &application{
-		logger: logger,
+		logger:         logger,
+		sessionManager: sessionManager,
 	}
 
 	tlsConfig := &tls.Config{
@@ -64,12 +72,10 @@ func main() {
 	os.Exit(1)
 }
 
-func openDB(dbName, authToken string) (*sql.DB, error) {
-	url := fmt.Sprintf("libsql://%s.turso.io?authToken=%s", dbName, authToken)
-
-	db, err := sql.Open("libsql", url)
+func openDB(dsn string) (*sql.DB, error) {
+	db, err := sql.Open("mysql", dsn)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open db %s: %s", url, err)
+		return nil, err
 	}
 
 	err = db.Ping()
@@ -77,11 +83,28 @@ func openDB(dbName, authToken string) (*sql.DB, error) {
 		db.Close()
 		return nil, err
 	}
+
 	return db, nil
 }
 
-func init() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal(err)
-	}
-}
+// func openTursoDB(dbName, authToken string) (*sql.DB, error) {
+// 	url := fmt.Sprintf("libsql://%s.turso.io?authToken=%s", dbName, authToken)
+
+// 	db, err := sql.Open("libsql", url)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	err = db.Ping()
+// 	if err != nil {
+// 		db.Close()
+// 		return nil, err
+// 	}
+// 	return db, nil
+// }
+
+// func init() {
+// 	if err := godotenv.Load(); err != nil {
+// 		log.Fatal(err)
+// 	}
+// }
