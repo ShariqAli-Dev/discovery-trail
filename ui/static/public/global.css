@@ -1346,8 +1346,20 @@ html {
   height: 100svh;
 }
 
+.h-full {
+  height: 100%;
+}
+
 .h-\[60svh\] {
   height: 60svh;
+}
+
+.max-h-\[400px\] {
+  max-height: 400px;
+}
+
+.max-h-\[600px\] {
+  max-height: 600px;
 }
 
 .w-\[45rem\] {
