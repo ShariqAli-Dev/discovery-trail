@@ -12,7 +12,6 @@ func (app *application) newTemplateData(r *http.Request) (types.TemplateData, er
 	if err != nil {
 		return types.TemplateData{}, err
 	}
-	app.logger.Info("NEW TEMPLATE NONCE", "nonce", nonce)
 	return types.TemplateData{
 		Nonce: nonce,
 	}, nil

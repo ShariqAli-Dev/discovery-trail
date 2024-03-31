@@ -12,9 +12,9 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, r, err)
 		return
 	}
-	app.sessionManager.Put(r.Context(), "flash", "THE SESSION MANAGER IS FUCKING WORKING")
-	flash := app.sessionManager.PopString(r.Context(), "flash")
-	data.Flash = flash
+	// app.sessionManager.Put(r.Context(), "flash", "THE SESSION MANAGER IS FUCKING WORKING")
+	// flash := app.sessionManager.PopString(r.Context(), "flash")
+	// data.Flash = flash
 
 	homePage := pages.Home(data)
 

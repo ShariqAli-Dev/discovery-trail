@@ -25,14 +25,15 @@ func (app *application) commonHeaders(next http.Handler) http.Handler {
 			app.serverError(w, r, err)
 			return
 		}
+		_ = nonce
 
-		w.Header().Set("Content-Security-Policy",
-			fmt.Sprintf("default-src 'self'; script-src 'self' 'nonce-%[1]s'; style-src 'self' fonts.googleapis.com 'nonce-%[1]s'; font-src fonts.gstatic.com;", nonce),
-		)
-		w.Header().Set("Referrer-Policy", "origin-when-cross-origin")
-		w.Header().Set("X-Content-Type-Options", "nosniff")
-		w.Header().Set("X-Frame-Options", "deny")
-		w.Header().Set("X-XSS-Protection", "0")
+		// w.Header().Set("Content-Security-Policy",
+		// 	fmt.Sprintf("default-src 'self'; script-src 'self' 'nonce-%[1]s'; style-src 'self' fonts.googleapis.com 'nonce-%[1]s'; font-src fonts.gstatic.com;", nonce),
+		// )
+		// w.Header().Set("Referrer-Policy", "origin-when-cross-origin")
+		// w.Header().Set("X-Content-Type-Options", "nosniff")
+		// w.Header().Set("X-Frame-Options", "deny")
+		// w.Header().Set("X-XSS-Protection", "0")
 
 		w.Header().Set("Server", "Go")
 
