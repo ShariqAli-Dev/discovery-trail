@@ -17,9 +17,13 @@ type application struct {
 	logger *slog.Logger
 }
 
+const (
+	key    = "9013g3thnohd@#OJKJq0"
+	MaxAge = 86400 * 40
+	IsProd = true
+)
+
 func main() {
-	// googleClientId := os.Getenv("GOOGLE_CLIENT_ID")
-	// googleClientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
 	addr := flag.String("addr", ":4000", "HTTP network address")
 	// dataSourceName := flag.String("dsn", "web:password@/discovery_trail?parseTime=true", "MySQL data source name")
 	flag.Parse()

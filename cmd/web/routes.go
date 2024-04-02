@@ -14,7 +14,10 @@ func (app *application) routes() http.Handler {
 
 	dynamic := alice.New()
 	mux.Handle("GET /{$}", dynamic.ThenFunc(app.home))
+	mux.Handle("POST /logout/google", dynamic.ThenFunc(app.logout))
+	mux.Handle("GET /auth/google", dynamic.ThenFunc(app.login))
+	mux.Handle("GET /auth/google/callback", dynamic.ThenFunc(app.callback))
 
-	standard := alice.New(app.recoverPanic, app.logRequest, app.generateNonce, app.commonHeaders)
+	standard := alice.New(app.recoverPanic, app.logRequest, app.generateNonce)
 	return standard.Then(mux)
 }

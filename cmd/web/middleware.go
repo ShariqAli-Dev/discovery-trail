@@ -20,12 +20,12 @@ import (
 
 func (app *application) commonHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		nonce, err := getNonce(r)
-		if err != nil {
-			app.serverError(w, r, err)
-			return
-		}
-		_ = nonce
+		// nonce, err := getNonce(r)
+		// if err != nil {
+		// 	app.serverError(w, r, err)
+		// 	return
+		// }
+		// _ = nonce
 
 		// w.Header().Set("Content-Security-Policy",
 		// 	fmt.Sprintf("default-src 'self'; script-src 'self' 'nonce-%[1]s'; style-src 'self' fonts.googleapis.com 'nonce-%[1]s'; font-src fonts.gstatic.com;", nonce),
