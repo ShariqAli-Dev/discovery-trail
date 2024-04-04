@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/a-h/templ"
+	"github.com/justinas/nosurf"
 	"github.com/shariqali-dev/discovery-trail/internal/types"
 )
 
@@ -12,8 +13,13 @@ func (app *application) newTemplateData(r *http.Request) (types.TemplateData, er
 	if err != nil {
 		return types.TemplateData{}, err
 	}
+
+	isAuthenticated := app.isAuthenticated(r)
+
 	return types.TemplateData{
-		Nonce: nonce,
+		Nonce:           nonce,
+		IsAuthenticated: isAuthenticated,
+		CSRFToken:       nosurf.Token(r),
 	}, nil
 }
 

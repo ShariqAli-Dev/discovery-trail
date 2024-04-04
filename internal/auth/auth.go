@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -12,17 +13,16 @@ import (
 	"github.com/markbates/goth/providers/google"
 )
 
-const (
-	key    = "9013g3thnohd@#OJKJq0"
-	MaxAge = 86400 * 40
-	IsProd = true
-)
+func customGetProviderName(r *http.Request) (string, error) {
+	provider := r.PathValue("provider")
+	if provider == "" {
+		return "", fmt.Errorf("expected provider, got %s", provider)
+	}
 
-func CustomGetProviderName(r *http.Request) (string, error) {
-	return "google", nil
+	return provider, nil
 }
 
-func NewAuth() {
+func NewAuth(addr *string, store *sessions.CookieStore) {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal(err)
@@ -31,16 +31,10 @@ func NewAuth() {
 	googleClientId := os.Getenv("GOOGLE_CLIENT_ID")
 	googleClientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
 
-	store := sessions.NewCookieStore([]byte(key))
-	store.MaxAge(MaxAge)
-	store.Options.Path = "/"
-	store.Options.HttpOnly = true
-	store.Options.Secure = IsProd
-
 	gothic.Store = store
-	gothic.GetProviderName = CustomGetProviderName
-
+	gothic.GetProviderName = customGetProviderName
+	fmt.Println(*addr)
 	goth.UseProviders(
-		google.New(googleClientId, googleClientSecret, "http://localhost:4000/auth/google/callback"),
+		google.New(googleClientId, googleClientSecret, fmt.Sprintf("https://localhost%s/auth/google/callback", *addr)),
 	)
 }

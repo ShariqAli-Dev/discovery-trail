@@ -1,4 +1,4 @@
-package template_formatter
+package main
 
 import (
 	"fmt"

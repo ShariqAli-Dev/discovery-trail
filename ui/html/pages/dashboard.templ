@@ -1,0 +1,25 @@
+package pages
+
+import (
+	"github.com/shariqali-dev/discovery-trail/internal/types"
+	"github.com/shariqali-dev/discovery-trail/ui/html/partials"
+)
+
+templ Dashboard(data types.TemplateData) {
+	@partials.BaseHTML(data, "dashboard", nil) {
+		<header class="flex justify-between w-full max-w-5xl p-4 m-auto">
+			<a href="/">
+				<h1>Discovery Trail</h1>
+			</a>
+			<nav>
+				<form action="/logout/google" method="post">
+					<input type="hidden" name="csrf_token" value={ data.CSRFToken }/>
+					<button class="btn btn-link" type="submit">Log Out</button>
+				</form>
+			</nav>
+		</header>
+		<main class="flex flex-col flex-1 max-w-5xl p-4">
+			<section><h2>this is the coolest dashboard page ever</h2></section>
+		</main>
+	}
+}

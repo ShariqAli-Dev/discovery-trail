@@ -9,41 +9,52 @@ import (
 	"os"
 	"time"
 
+	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
-	// _ "github.com/go-sql-driver/mysql"
+	"github.com/shariqali-dev/discovery-trail/internal/auth"
+	"github.com/shariqali-dev/discovery-trail/internal/database"
+	"github.com/shariqali-dev/discovery-trail/internal/models"
+	_ "github.com/tursodatabase/libsql-client-go/libsql"
 )
 
 type application struct {
-	logger *slog.Logger
+	logger   *slog.Logger
+	users    models.UserModelInterface
+	sessions models.SessionModelInterface
+	store    *sessions.CookieStore
 }
 
-const (
-	key    = "9013g3thnohd@#OJKJq0"
-	MaxAge = 86400 * 40
-	IsProd = true
-)
-
 func main() {
+	dbAuthToken := os.Getenv("DB_AUTH_TOKEN")
+	dbURL := os.Getenv("DB_URL")
 	addr := flag.String("addr", ":4000", "HTTP network address")
-	// dataSourceName := flag.String("dsn", "web:password@/discovery_trail?parseTime=true", "MySQL data source name")
+	authKey := os.Getenv("AUTH_KEY")
 	flag.Parse()
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 		AddSource: true,
 	}))
 
-	// db, err := openDB(*dataSourceName)
-	// if err != nil {
-	// 	logger.Error(err.Error())
-	// 	os.Exit(1)
-	// }
-	// defer db.Close()
+	db, err := database.OpenDB(dbURL, dbAuthToken)
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+	defer db.Close()
 
-	// sessionManager := scs.New()
-	// sessionManager.Store = mysqlstore.New(db)
-	// sessionManager.Lifetime = 12 * time.Hour
+	store := sessions.NewCookieStore([]byte(authKey))
+	store.MaxAge(int(time.Hour.Seconds() * 24 * 7))
+	store.Options.Path = "/"
+	store.Options.HttpOnly = true
+	store.Options.Secure = true
+
+	auth.NewAuth(addr, store)
+
 	app := &application{
-		logger: logger,
+		logger:   logger,
+		users:    &models.UserModel{DB: db},
+		sessions: &models.SessionModel{DB: db},
+		store:    store,
 	}
 
 	tlsConfig := &tls.Config{
@@ -60,26 +71,10 @@ func main() {
 	}
 	logger.Info("starting server", "addr", server.Addr)
 
-	// err = server.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
-	err := server.ListenAndServe()
+	err = server.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 	logger.Error(err.Error())
 	os.Exit(1)
 }
-
-// func openDB(dsn string) (*sql.DB, error) {
-// 	db, err := sql.Open("mysql", dsn)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	err = db.Ping()
-// 	if err != nil {
-// 		db.Close()
-// 		return nil, err
-// 	}
-
-// 	return db, nil
-// }
 
 func init() {
 	if err := godotenv.Load(); err != nil {

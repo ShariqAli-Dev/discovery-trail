@@ -1,5 +1,5 @@
-sql:
-	mysql -D discovery_trail -u web -p
+turso:
+	turso db shell discovery-trail
 templ:
 	templ generate --watch 
 css:

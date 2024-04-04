@@ -10,14 +10,22 @@ import (
 func (app *application) routes() http.Handler {
 	mux := http.NewServeMux()
 
-	mux.Handle("GET /static/", http.FileServerFS(ui.Files))
+	mux.Handle("/static/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "public, max-age=604800") // 7 days
+		http.FileServer(http.FS(ui.Files)).ServeHTTP(w, r)
+	}))
 
-	dynamic := alice.New()
+	base := alice.New()
+	mux.Handle("GET /auth/{provider}", base.ThenFunc(app.login))
+	mux.Handle("GET /auth/{provider}/callback", base.ThenFunc(app.callback))
+
+	dynamic := base.Append(noSurf, app.authenticate)
 	mux.Handle("GET /{$}", dynamic.ThenFunc(app.home))
-	mux.Handle("POST /logout/google", dynamic.ThenFunc(app.logout))
-	mux.Handle("GET /auth/google", dynamic.ThenFunc(app.login))
-	mux.Handle("GET /auth/google/callback", dynamic.ThenFunc(app.callback))
 
-	standard := alice.New(app.recoverPanic, app.logRequest, app.generateNonce)
+	protected := dynamic.Append(app.requireAuthentication)
+	mux.Handle("GET /dashboard", protected.ThenFunc(app.dashboard))
+	mux.Handle("POST /logout/{provider}", protected.ThenFunc(app.logout))
+
+	standard := alice.New(app.recoverPanic, app.logRequest, app.generateNonce, app.commonHeaders)
 	return standard.Then(mux)
 }
