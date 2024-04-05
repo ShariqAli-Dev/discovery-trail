@@ -11,14 +11,24 @@ templ Dashboard(data types.TemplateData) {
 			<a href="/">
 				<h1>Discovery Trail</h1>
 			</a>
-			<nav>
+			<nav class="dropdown dropdown-end">
 				<form action="/logout/google" method="post">
-					<input type="hidden" name="csrf_token" value={ data.CSRFToken }/>
-					<button class="btn btn-link" type="submit">Log Out</button>
+					<div tabindex="0" role="button" class="avatar placeholder">
+						<div class="w-12 rounded-full bg-neutral text-neutral-content">
+							<span>DT</span>
+						</div>
+					</div>
+					<ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+						<li><a href="/profile">Profile</a></li>
+						<li>
+							<input type="hidden" name="csrf_token" value={ data.CSRFToken }/>
+							<button type="submit">Log Out</button>
+						</li>
+					</ul>
 				</form>
 			</nav>
 		</header>
-		<main class="flex flex-col flex-1 max-w-5xl p-4">
+		<main class="flex flex-col flex-1 w-full max-w-5xl p-4 m-auto">
 			<section><h2>this is the coolest dashboard page ever</h2></section>
 		</main>
 	}

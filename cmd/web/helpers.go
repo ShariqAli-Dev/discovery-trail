@@ -3,6 +3,8 @@ package main
 import (
 	"errors"
 	"net/http"
+
+	"github.com/shariqali-dev/discovery-trail/internal/models"
 )
 
 func (app *application) serverError(w http.ResponseWriter, r *http.Request, err error) {
@@ -34,4 +36,24 @@ func (app *application) isAuthenticated(r *http.Request) bool {
 		return false
 	}
 	return isAuthenticated
+}
+
+func (app *application) getAccountFromRequestID(r *http.Request) (models.Account, error) {
+	accountID := r.Context().Value(accountIDContextKey)
+	if accountID == nil {
+		return models.Account{}, nil
+	}
+	accountIDString, ok := accountID.(string)
+	if !ok {
+		return models.Account{}, nil
+	}
+
+	account, err := app.accounts.Get(accountIDString)
+	if err != nil {
+		if errors.Is(err, models.ErrorNoRecord) {
+			return models.Account{}, nil
+		}
+		return models.Account{}, err
+	}
+	return account, nil
 }

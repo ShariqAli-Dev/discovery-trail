@@ -85,52 +85,32 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 			r = r.WithContext(newContext)
 			next.ServeHTTP(w, r)
 			return
-		} else {
-			sessionToken := cookieStore.Values["token"]
-			if sessionToken == nil {
+		}
+		sessionToken := cookieStore.Values["token"]
+		if sessionToken == nil {
+			newContext := context.WithValue(r.Context(), isAuthenticatedContextKey, false)
+			r = r.WithContext(newContext)
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		accountID, err := app.sessions.GetAccountID(sessionToken.(string))
+		if err != nil {
+			if errors.Is(err, models.ErrorNoRecord) {
 				newContext := context.WithValue(r.Context(), isAuthenticatedContextKey, false)
 				r = r.WithContext(newContext)
 				next.ServeHTTP(w, r)
 				return
-			}
-
-			userID, err := app.sessions.GetUserID(sessionToken.(string))
-			if err != nil {
-				if errors.Is(err, models.ErrorNoRecord) {
-					newContext := context.WithValue(r.Context(), isAuthenticatedContextKey, false)
-					r = r.WithContext(newContext)
-					next.ServeHTTP(w, r)
-					return
-				} else {
-					app.serverError(w, r, err)
-					return
-				}
-			}
-
-			exists, err := app.accounts.Exists(userID)
-			if err != nil {
-				if errors.Is(err, models.ErrorNoRecord) {
-					newContext := context.WithValue(r.Context(), isAuthenticatedContextKey, false)
-					r = r.WithContext(newContext)
-					next.ServeHTTP(w, r)
-					return
-				} else {
-					app.serverError(w, r, err)
-					return
-				}
-			}
-
-			if exists {
-				newContext := context.WithValue(r.Context(), isAuthenticatedContextKey, true)
-				r = r.WithContext(newContext)
-				next.ServeHTTP(w, r)
 			} else {
-				newContext := context.WithValue(r.Context(), isAuthenticatedContextKey, true)
-				r = r.WithContext(newContext)
-				next.ServeHTTP(w, r)
+				app.serverError(w, r, err)
+				return
 			}
 		}
 
+		newContext := context.WithValue(r.Context(), isAuthenticatedContextKey, true)
+		newContext = context.WithValue(newContext, accountIDContextKey, accountID)
+		r = r.WithContext(newContext)
+		next.ServeHTTP(w, r)
 	})
 }
 

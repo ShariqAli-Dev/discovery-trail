@@ -98,7 +98,7 @@ func (app *application) callback(w http.ResponseWriter, r *http.Request) {
 func (app *application) logout(w http.ResponseWriter, r *http.Request) {
 	gothic.Logout(w, r)
 	cookieStore, err := app.store.Get(r, "discovery-trail")
-	if cookieStore.IsNew || err != nil {
+	if err != nil {
 		app.serverError(w, r, err)
 		return
 	}
@@ -106,10 +106,18 @@ func (app *application) logout(w http.ResponseWriter, r *http.Request) {
 	if currentSessionToken != nil {
 		err := app.sessions.Destroy(currentSessionToken.(string))
 		if err != nil {
-			app.serverError(w, r, err)
-			return
+			if !errors.Is(err, models.ErrorNoRecord) {
+				app.serverError(w, r, err)
+				return
+			}
 		}
-		cookieStore.Values["token"] = nil
+	}
+
+	cookieStore.Options.MaxAge = -1
+	err = cookieStore.Save(r, w)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
 	}
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)

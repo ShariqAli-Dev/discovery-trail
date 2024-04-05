@@ -12,7 +12,7 @@ type SessionModelInterface interface {
 	Create(data []byte) (string, error)
 	Exists(token string) (bool, error)
 	Destroy(token string) error
-	GetUserID(token string) (string, error)
+	GetAccountID(token string) (string, error)
 }
 
 type Session struct {
@@ -73,16 +73,16 @@ func (m *SessionModel) Destroy(token string) error {
 	return nil
 }
 
-func (m *SessionModel) GetUserID(token string) (string, error) {
-	var userID string
+func (m *SessionModel) GetAccountID(token string) (string, error) {
+	var accountID string
 	sqlStatement := "SELECT data FROM sessions WHERE token = ?"
-	err := m.DB.QueryRow(sqlStatement, token).Scan(&userID)
+	err := m.DB.QueryRow(sqlStatement, token).Scan(&accountID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return userID, ErrorNoRecord
+			return accountID, ErrorNoRecord
 		} else {
-			return userID, err
+			return accountID, err
 		}
 	}
-	return userID, nil
+	return accountID, nil
 }

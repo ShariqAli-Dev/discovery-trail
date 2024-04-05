@@ -15,11 +15,16 @@ func (app *application) newTemplateData(r *http.Request) (types.TemplateData, er
 	}
 
 	isAuthenticated := app.isAuthenticated(r)
+	account, err := app.getAccountFromRequestID(r)
+	if err != nil {
+		return types.TemplateData{}, err
 
+	}
 	return types.TemplateData{
 		Nonce:           nonce,
 		IsAuthenticated: isAuthenticated,
 		CSRFToken:       nosurf.Token(r),
+		Account:         account,
 	}, nil
 }
 

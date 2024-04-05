@@ -3,7 +3,6 @@ package models
 import (
 	"database/sql"
 	"errors"
-	"strings"
 )
 
 type Account struct {
@@ -34,7 +33,7 @@ func (m *AccountModel) Insert(id, name, email string) error {
 func (m *AccountModel) Exists(id string) (bool, error) {
 	var exists bool
 	sqlStatement := "SELECT EXISTS(SELECT true FROM accounts WHERE id = ?)"
-	err := m.DB.QueryRow(sqlStatement, strings.Trim(id, `"`)).Scan(&exists)
+	err := m.DB.QueryRow(sqlStatement, id).Scan(&exists)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return false, ErrorNoRecord
@@ -48,9 +47,8 @@ func (m *AccountModel) Exists(id string) (bool, error) {
 
 func (m *AccountModel) Get(id string) (Account, error) {
 	var account Account
-	sqlStatement := "SLELECT id, name, email, credits FROM accounts WHERE id = ?"
-
-	err := m.DB.QueryRow(sqlStatement, strings.Trim(id, `"`)).Scan(&account.ID, &account.Name, &account.Email, &account.Credits)
+	sqlStatement := "SELECT id, name, email, credits FROM accounts WHERE id = ?"
+	err := m.DB.QueryRow(sqlStatement, id).Scan(&account.ID, &account.Name, &account.Email, &account.Credits)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return Account{}, ErrorNoRecord
