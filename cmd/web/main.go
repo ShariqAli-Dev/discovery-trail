@@ -19,7 +19,7 @@ import (
 
 type application struct {
 	logger   *slog.Logger
-	users    models.UserModelInterface
+	accounts models.AccountModelInterface
 	sessions models.SessionModelInterface
 	store    *sessions.CookieStore
 }
@@ -52,7 +52,7 @@ func main() {
 
 	app := &application{
 		logger:   logger,
-		users:    &models.UserModel{DB: db},
+		accounts: &models.AccountModel{DB: db},
 		sessions: &models.SessionModel{DB: db},
 		store:    store,
 	}

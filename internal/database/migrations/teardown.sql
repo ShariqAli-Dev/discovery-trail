@@ -1,2 +1,6 @@
 drop table sessions;
-drop table users;
+drop table accounts;
+drop table courses;
+drop table units;
+drop table chapters;
+drop table questions;

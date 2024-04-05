@@ -45,3 +45,29 @@ func MigrateDown(db *sql.DB) error {
 	}
 	return nil
 }
+
+// func deleteExpiredSessions(db *sql.DB) {
+//     // Prepare the SQL statement to delete expired sessions
+//     stmt, err := db.Prepare("DELETE FROM sessions WHERE expiry <= NOW()")
+//     if err != nil {
+//         log.Fatal(err)
+//     }
+//     defer stmt.Close()
+
+//     // Execute the SQL statement
+//     _, err = stmt.Exec()
+//     if err != nil {
+//         log.Fatal(err)
+//     }
+
+//     log.Println("Expired sessions deleted")
+// }
+//     go func() {
+//         for {
+//             // Call the function
+//             deleteExpiredSessions(db)
+
+//             // Sleep for a specified interval (e.g., 1 hour)
+//             time.Sleep(time.Hour)
+//         }
+//     }()

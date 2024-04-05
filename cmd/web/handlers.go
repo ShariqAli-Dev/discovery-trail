@@ -39,12 +39,12 @@ func (app *application) dashboard(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) callback(w http.ResponseWriter, r *http.Request) {
-	user, err := gothic.CompleteUserAuth(w, r)
+	account, err := gothic.CompleteUserAuth(w, r)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
 	}
-	userIDBlob, err := json.Marshal(user.UserID)
+	accountIDBlob, err := json.Marshal(account.UserID)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
@@ -64,7 +64,7 @@ func (app *application) callback(w http.ResponseWriter, r *http.Request) {
 		cookieStore.Values["token"] = nil
 	}
 
-	exists, err := app.users.Exists(user.UserID)
+	exists, err := app.accounts.Exists(account.UserID)
 
 	if err != nil {
 		if !errors.Is(err, models.ErrorNoRecord) {
@@ -73,14 +73,14 @@ func (app *application) callback(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if !exists {
-		err = app.users.Insert(user.UserID, fmt.Sprintf("%s %s", user.FirstName, user.LastName), user.Email)
+		err = app.accounts.Insert(account.UserID, fmt.Sprintf("%s %s", account.FirstName, account.LastName), account.Email)
 		if err != nil {
 			app.serverError(w, r, err)
 			return
 		}
 	}
 
-	sessionID, err := app.sessions.Create(userIDBlob)
+	sessionID, err := app.sessions.Create(accountIDBlob)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
@@ -116,12 +116,12 @@ func (app *application) logout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) login(w http.ResponseWriter, r *http.Request) {
-	user, err := gothic.CompleteUserAuth(w, r)
+	account, err := gothic.CompleteUserAuth(w, r)
 	if err != nil {
 		gothic.BeginAuthHandler(w, r)
 		return
 	}
-	userIDBlob, err := json.Marshal(user.UserID)
+	accountIDBlob, err := json.Marshal(account.UserID)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
@@ -141,7 +141,7 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 		cookieStore.Values["token"] = nil
 	}
 
-	exists, err := app.users.Exists(user.UserID)
+	exists, err := app.accounts.Exists(account.UserID)
 
 	if err != nil {
 		if !errors.Is(err, models.ErrorNoRecord) {
@@ -150,14 +150,14 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if !exists {
-		err = app.users.Insert(user.UserID, fmt.Sprintf("%s %s", user.FirstName, user.LastName), user.Email)
+		err = app.accounts.Insert(account.UserID, fmt.Sprintf("%s %s", account.FirstName, account.LastName), account.Email)
 		if err != nil {
 			app.serverError(w, r, err)
 			return
 		}
 	}
 
-	sessionID, err := app.sessions.Create(userIDBlob)
+	sessionID, err := app.sessions.Create(accountIDBlob)
 	if err != nil {
 		app.serverError(w, r, err)
 		return

@@ -107,7 +107,7 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 				}
 			}
 
-			exists, err := app.users.Exists(userID)
+			exists, err := app.accounts.Exists(userID)
 			if err != nil {
 				if errors.Is(err, models.ErrorNoRecord) {
 					newContext := context.WithValue(r.Context(), isAuthenticatedContextKey, false)
