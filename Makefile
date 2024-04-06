@@ -9,4 +9,4 @@ static:
 build: static
 	go build -o ./bin/web ./cmd/web
 run: static
-	go run ./cmd/web
+	go run ./cmd/template_formatter && go run ./cmd/web

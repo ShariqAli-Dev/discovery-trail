@@ -5,7 +5,7 @@ tmp_dir = "tmp"
 [build]
 args_bin = []
 bin = "./tmp/web"
-cmd = "templ generate && make static && go build -o ./tmp/web ./cmd/web"
+cmd = "templ generate && make static && go run ./cmd/template_formatter && go build -o ./tmp/web ./cmd/web"
 delay = 1000
 exclude_dir = ["bin", "tls", "tmp", "ui/static/dist", "ui/static/node_modules"]
 exclude_file = []

@@ -9,16 +9,27 @@ import (
 )
 
 func main() {
-	routesPath, err := filepath.Abs("views")
+	routesPath, err := filepath.Abs("ui/html")
 	if err != nil {
 		log.Fatal(err)
 	}
-	if err := filepath.Walk(routesPath, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(routesPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 
-		if info.IsDir() && path != routesPath {
+		if info.IsDir() && path != routesPath && info.Name() == "partials" {
+			searchFileName := getBuiltJS("index")
+			baseTemplatePath := routesPath + "/partials/base_templ.go"
+			baseTemplate, err := os.ReadFile(baseTemplatePath)
+			if err != nil {
+				return err
+			}
+			baseTemplateContent := string(baseTemplate)
+			templateContent := strings.Replace(baseTemplateContent, "index.js", searchFileName+".js", 1)
+			if err := os.WriteFile(baseTemplatePath, []byte(templateContent), 0644); err != nil {
+				return err
+			}
 			return filepath.SkipDir
 		}
 
@@ -30,27 +41,11 @@ func main() {
 				return nil
 			}
 
-			// edge case of the index file
-			if fileNameWithoutSuffix == "index" {
-				baseTemplatePath := routesPath + "/partials/base_html_templ.go"
-				baseTemplate, err := os.ReadFile(baseTemplatePath)
-				if err != nil {
-					return err
-				}
-				baseTemplateContent := string(baseTemplate)
-				searchString := "index.js"
-				templateContent := strings.Replace(baseTemplateContent, searchString, searchFileName+".js", 1)
-				if err := os.WriteFile(baseTemplatePath, []byte(templateContent), 0644); err != nil {
-					return err
-				}
-			}
-
 			template, err := os.ReadFile(path)
 			if err != nil {
 				return err
 			}
 			templateContent := string(template)
-
 			searchString := fmt.Sprintf(`BaseHTML("%s",`, fileNameWithoutSuffix)
 			replacementString := fmt.Sprintf(`BaseHTML("%s",`, searchFileName)
 
@@ -62,14 +57,15 @@ func main() {
 			return nil
 		}
 		return nil
-	}); err != nil {
+	})
+	if err != nil {
 		log.Fatal(err)
-	}
 
+	}
 }
 
 func getBuiltJS(fileBase string) string {
-	assetsDirectoryPath, err := filepath.Abs("web/dist/assets")
+	assetsDirectoryPath, err := filepath.Abs("ui/static/dist/assets")
 	if err != nil {
 		log.Fatal(err)
 	}

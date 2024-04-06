@@ -1,11 +1,40 @@
 package partials
 
-templ Navbar() {
-	<header class="flex flex-row  width-full justify-around">
-		<a href="/"><h1>Discovery Trail</h1></a>
-		<nav>
-			<a href="/"><h1>Sign In</h1></a>
-			<a href="/"><h1>Get Started</h1></a>
-		</nav>
-	</header>
+templ Navbar(isAuthenticated bool, CSRFToken string) {
+	if isAuthenticated {
+		<header class="flex justify-between w-full max-w-5xl p-4 m-auto">
+			<a href="/">
+				<h1>Discovery Trail</h1>
+			</a>
+			<nav>
+				<a href="/create" class="mx-4">Create Course</a>
+				<div class="dropdown dropdown-end">
+					<form action="/logout/google" method="post">
+						<div tabindex="0" role="button" class="avatar placeholder">
+							<div class="w-12 rounded-full bg-neutral text-neutral-content">
+								<span>DT</span>
+							</div>
+						</div>
+						<ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+							<li><a href="/profile">Profile</a></li>
+							<li>
+								<input type="hidden" name="csrf_token" value={ CSRFToken }/>
+								<button type="submit">Log Out</button>
+							</li>
+						</ul>
+					</form>
+				</div>
+			</nav>
+		</header>
+	} else {
+		<header class="flex justify-between w-full max-w-5xl p-4 m-auto">
+			<a href="/">
+				<h1>Discovery Trail</h1>
+			</a>
+			<nav>
+				<a class="btn btn-link" href="/auth/google">Log In</a>
+				<a class="btn btn-primary" href="/auth/google">Get Started</a>
+			</nav>
+		</header>
+	}
 }

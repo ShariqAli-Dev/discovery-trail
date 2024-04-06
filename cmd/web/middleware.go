@@ -22,7 +22,7 @@ func (app *application) commonHeaders(next http.Handler) http.Handler {
 		_ = nonce
 
 		w.Header().Set("Content-Security-Policy",
-			fmt.Sprintf("default-src 'self'; script-src 'self' 'nonce-%[1]s'; style-src 'self' fonts.googleapis.com 'nonce-%[1]s'; font-src fonts.gstatic.com;", nonce),
+			fmt.Sprintf("default-src 'self'; script-src 'self' 'nonce-%[1]s'; style-src 'self' fonts.googleapis.com 'nonce-%[1]s'; font-src fonts.gstatic.com; img-src 'self' https://daisyui.com;", nonce),
 		)
 		w.Header().Set("Referrer-Policy", "origin-when-cross-origin")
 		w.Header().Set("X-Content-Type-Options", "nosniff")

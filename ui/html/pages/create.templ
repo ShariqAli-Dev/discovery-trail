@@ -1,0 +1,45 @@
+package pages
+
+import "github.com/shariqali-dev/discovery-trail/internal/types"
+import "github.com/shariqali-dev/discovery-trail/ui/html/partials"
+import "fmt"
+
+templ Create(data types.TemplateData) {
+	@partials.BaseHTML("create", data, nil) {
+		@partials.Navbar(data.IsAuthenticated, data.CSRFToken)
+		<main class="flex flex-col flex-1 w-full max-w-5xl p-4 m-auto bg-base-200">
+			<h2>Learning Journey</h2>
+			<div role="alert" class="alert alert-info">
+				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-6 h-6 stroke-current shrink-0"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+				<span>Enter in a course title, or what you want to learn about. Then enter a list of units, which are the specifics you want to learn. Our AI will then generate you a course!</span>
+			</div>
+			<form action="/create" method="post">
+				<input type="hidden" name="csrf_token" value={ data.CSRFToken }/>
+				<div class="flex flex-col w-full">
+					<div class="flex flex-col items-start w-full sm:flex-row sm:items-center ">
+						<label for="title" class="flex-[1] text-xl">Title</label>
+						<input id="title" name="title" class="flex-[6]"/>
+					</div>
+					<div id="div-units">
+						<div class="flex flex-col items-start w-full sm:flex-row sm:items-center ">
+							<label for="unit-1" class="flex-[1] text-xl">Unit 1</label>
+							<input id="unit-1" name="unit-1" class="flex-[6]"/>
+						</div>
+						<div class="flex flex-col items-start w-full sm:flex-row sm:items-center ">
+							<label for="unit-2" class="flex-[1] text-xl">Unit 2</label>
+							<input id="unit-2" name="unit-2" class="flex-[6]"/>
+						</div>
+					</div>
+				</div>
+				<div>
+					<button id="button-add-unit">Add Unit</button>
+					<button id="button-remove-unit">Remove Unit</button>
+				</div>
+				<button type="submit">Lets Go!</button>
+				<div>
+					{ fmt.Sprintf("%d",data.Account.Credits) } / 10 Free Generations
+				</div>
+			</form>
+		</main>
+	}
+}

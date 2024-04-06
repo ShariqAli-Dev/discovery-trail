@@ -1,6 +1,8 @@
 package types
 
-import "github.com/shariqali-dev/discovery-trail/internal/models"
+import (
+	"github.com/shariqali-dev/discovery-trail/internal/models"
+)
 
 type TemplateData struct {
 	Nonce           string
@@ -8,4 +10,10 @@ type TemplateData struct {
 	IsAuthenticated bool
 	CSRFToken       string
 	Account         models.Account
+}
+
+type Unit struct {
+	ID       uint8
+	Name     string
+	CourseID uint8
 }

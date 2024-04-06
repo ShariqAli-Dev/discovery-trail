@@ -5,4 +5,4 @@ let shariq = "shariq";
 /** @type {string[]} */
 const names = ["shariq", "the cool", "was here"];
 
-console.log(camelCase(names[0]));
+console.log(camelCase(names[0]), "was here");

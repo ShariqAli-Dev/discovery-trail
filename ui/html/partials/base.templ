@@ -2,7 +2,7 @@ package partials
 
 import "github.com/shariqali-dev/discovery-trail/internal/types"
 
-templ BaseHTML(data types.TemplateData, jsFile string, scriptSources []string) {
+templ BaseHTML(jsFile string, data types.TemplateData, scriptSources []string) {
 	<!DOCTYPE html>
 	<html data-theme="light" lang="en">
 		<head>
@@ -21,11 +21,11 @@ templ BaseHTML(data types.TemplateData, jsFile string, scriptSources []string) {
 		</head>
 		<body class="h-[100svh] w-full flex flex-col bg-base-100">
 			{ children... }
-			// <script type="module" src="/static/assets/index.js"></script>
-			// for _, source := range scriptSources {
-			// 	<script src={ source }></script>
-			// }
-			// <script type="module" src={ "/static/dist/assets/" + jsFile + ".js" }></script>
+			<script type="module" src="/static/dist/assets/index.js"></script>
+			for _, source := range scriptSources {
+				<script src={ source }></script>
+			}
+			<script type="module" src={ "/static/dist/assets/" + jsFile + ".js" }></script>
 		</body>
 	</html>
 }

@@ -38,6 +38,17 @@ func (app *application) dashboard(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, http.StatusOK, dashboardPage)
 }
 
+func (app *application) create(w http.ResponseWriter, r *http.Request) {
+	data, err := app.newTemplateData(r)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	createPage := pages.Create(data)
+	app.render(w, r, http.StatusOK, createPage)
+}
+
 func (app *application) callback(w http.ResponseWriter, r *http.Request) {
 	account, err := gothic.CompleteUserAuth(w, r)
 	if err != nil {
