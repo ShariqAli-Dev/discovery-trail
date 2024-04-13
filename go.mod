@@ -4,11 +4,14 @@ go 1.22.1
 
 require (
 	github.com/a-h/templ v0.2.648
+	github.com/go-playground/form/v4 v4.2.1
+	github.com/google/uuid v1.6.0
 	github.com/gorilla/sessions v1.2.2
 	github.com/joho/godotenv v1.5.1
 	github.com/justinas/alice v1.2.0
 	github.com/justinas/nosurf v1.1.1
 	github.com/markbates/goth v1.79.0
+	github.com/sashabaranov/go-openai v1.21.0
 	github.com/tursodatabase/libsql-client-go v0.0.0-20240401075953-8e79a99d828a
 )
 

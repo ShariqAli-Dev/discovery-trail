@@ -5,9 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/markbates/goth/gothic"
 	"github.com/shariqali-dev/discovery-trail/internal/models"
+	"github.com/shariqali-dev/discovery-trail/internal/types"
+	"github.com/shariqali-dev/discovery-trail/internal/validator"
 	"github.com/shariqali-dev/discovery-trail/ui/html/pages"
 )
 
@@ -47,6 +51,70 @@ func (app *application) create(w http.ResponseWriter, r *http.Request) {
 
 	createPage := pages.Create(data)
 	app.render(w, r, http.StatusOK, createPage)
+}
+
+func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	var form types.CourseCreateForm
+	err = app.decodePostForm(r, &form)
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	unitCountAsInt, err := strconv.Atoi(r.PostForm.Get("unit-count"))
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+	}
+	form.UnitCount = unitCountAsInt
+	form.UnitValues = make(map[string]string)
+	form.CheckField(validator.NotBlank(form.Title), "title", "This field cannot be blank")
+	form.CheckField(validator.MinCount(form.UnitCount, 1), "unit-count", "Cant have less than 1 unit")
+	form.CheckField(validator.MaxCount(form.UnitCount, 5), "unit-count", "Cant have more than 5 unit")
+	for unit := range form.UnitCount {
+		unit++
+		unitString := fmt.Sprintf("unit-%d", unit)
+		unitFormValue := r.PostForm.Get(unitString)
+		form.UnitValues[unitString] = unitFormValue
+
+		form.CheckField(validator.NotBlank(unitFormValue), unitString, "This field cannot be blank")
+		form.CheckField(validator.MaxChars(unitFormValue, 30), unitString, "This field cannot be more than 30 characters long")
+	}
+	if !form.Valid() {
+		courseCreateFormInputs := pages.CourseCreateFormInputs(form)
+		app.render(w, r, http.StatusOK, courseCreateFormInputs)
+		return
+	}
+
+	unsplashSearchTerm, err := getImageSearchTermFromTitle(app.openAiClient, form.Title)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+	unsplashResult, err := getUnsplashImage(strings.TrimSpace(unsplashSearchTerm.SearchTerm))
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+	courseID, err := app.courses.Insert(form.Title, unsplashResult.Results[0].Images.Regular)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	for unit := 1; unit <= form.UnitCount; unit++ {
+		go func(unit int) {
+			_ = courseID
+			// start the openai course creation here
+			// update the databsae with the course creation test
+		}(unit)
+	}
+
+	courseCreateInputs := pages.CourseCreateFormInputs(form)
+	app.render(w, r, http.StatusOK, courseCreateInputs)
 }
 
 func (app *application) callback(w http.ResponseWriter, r *http.Request) {

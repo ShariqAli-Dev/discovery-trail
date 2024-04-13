@@ -23,7 +23,7 @@ type AccountModel struct {
 }
 
 func (m *AccountModel) Insert(id, name, email string) error {
-	sqlStatement := "INSERT INTO accounts (id, name, email, credits) VALUES(?, ?, ?, 0)"
+	sqlStatement := "INSERT INTO accounts (id, name, email, credits) VALUES(?, ?, ?, 10)"
 	_, err := m.DB.Exec(sqlStatement, id, name, email)
 
 	return err

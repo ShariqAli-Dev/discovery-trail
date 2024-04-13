@@ -9,8 +9,10 @@ import (
 	"os"
 	"time"
 
+	"github.com/go-playground/form/v4"
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
+	"github.com/sashabaranov/go-openai"
 	"github.com/shariqali-dev/discovery-trail/internal/auth"
 	"github.com/shariqali-dev/discovery-trail/internal/database"
 	"github.com/shariqali-dev/discovery-trail/internal/models"
@@ -18,15 +20,19 @@ import (
 )
 
 type application struct {
-	logger   *slog.Logger
-	accounts models.AccountModelInterface
-	sessions models.SessionModelInterface
-	store    *sessions.CookieStore
+	logger       *slog.Logger
+	accounts     models.AccountModelInterface
+	sessions     models.SessionModelInterface
+	courses      models.CourseModelInterface
+	store        *sessions.CookieStore
+	formDecoder  *form.Decoder
+	openAiClient *openai.Client
 }
 
 func main() {
 	dbAuthToken := os.Getenv("DB_AUTH_TOKEN")
 	dbURL := os.Getenv("DB_URL")
+	openAiAPIKey := os.Getenv("OPEN_AI_API_KEY")
 	addr := flag.String("addr", ":4000", "HTTP network address")
 	authKey := os.Getenv("AUTH_KEY")
 	flag.Parse()
@@ -49,12 +55,18 @@ func main() {
 	store.Options.Secure = true
 
 	auth.NewAuth(addr, store)
+	formDecoder := form.NewDecoder()
+
+	openAiClient := openai.NewClient(openAiAPIKey)
 
 	app := &application{
-		logger:   logger,
-		accounts: &models.AccountModel{DB: db},
-		sessions: &models.SessionModel{DB: db},
-		store:    store,
+		logger:       logger,
+		accounts:     &models.AccountModel{DB: db},
+		sessions:     &models.SessionModel{DB: db},
+		courses:      &models.CourseModel{DB: db},
+		store:        store,
+		formDecoder:  formDecoder,
+		openAiClient: openAiClient,
 	}
 
 	tlsConfig := &tls.Config{
@@ -69,7 +81,6 @@ func main() {
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
-	logger.Info("starting server", "addr", server.Addr)
 
 	err = server.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 	logger.Error(err.Error())

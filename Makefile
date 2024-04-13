@@ -1,7 +1,5 @@
 turso:
 	turso db shell discovery-trail
-templ:
-	templ generate --watch 
 css:
 	cd ./ui/static && npx tailwindcss -i ./src/input.css -o ./public/global.css --watch
 static:
