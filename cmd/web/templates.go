@@ -15,7 +15,7 @@ func (app *application) newTemplateData(r *http.Request) (types.TemplateData, er
 	}
 
 	isAuthenticated := app.isAuthenticated(r)
-	account, err := app.getAccountFromRequestID(r)
+	account, err := app.requestGetAccount(r)
 	if err != nil {
 		return types.TemplateData{}, err
 

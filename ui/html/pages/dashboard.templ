@@ -12,22 +12,24 @@ templ Dashboard(data types.TemplateData) {
 			<section class="flex justify-between">
 				<h2>Collection</h2>
 			</section>
-			<section>
-				<div class="shadow-xl card card-compact w-96 bg-base-100">
-					<figure><img src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg" alt="Shoes"/></figure>
-					<div class="card-body">
-						<h3 class="card-title">Intermediate Programming with Zig: A hands-on learning experience</h3>
-						<h4>Units</h4>
-						<ul>
-							<li>Unit 1: Lorem ipsum</li>
-							<li>Unit 2: Lorem ipsum</li>
-							<li>Unit 3: Lorem ipsum</li>
-						</ul>
-						<div class="justify-end card-actions">
-							<button class="btn btn-secondary">View Course</button>
+			<section class="flex flex-wrap items-center justify-around flex-1">
+				for _, course := range data.Courses {
+					<div class="shadow-xl card card-compact w-96 bg-base-100">
+						<figure><img src={ course.Image } alt="course image"/></figure>
+						<div class="card-body">
+							<h3 class="card-title">{ course.Name }</h3>
+							<h4>Units</h4>
+							<ul>
+								<li>Unit 1: Lorem ipsum</li>
+								<li>Unit 2: Lorem ipsum</li>
+								<li>Unit 3: Lorem ipsum</li>
+							</ul>
+							<div class="justify-end card-actions">
+								<button class="btn btn-secondary">View Course</button>
+							</div>
 						</div>
 					</div>
-				</div>
+				}
 			</section>
 		</main>
 	}

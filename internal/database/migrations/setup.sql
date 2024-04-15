@@ -14,7 +14,9 @@ CREATE TABLE accounts (
 CREATE TABLE courses (
     id INT PRIMARY KEY,
     name VARCHAR NOT NULL,
-    image VARCHAR NOT NULL
+    image VARCHAR NOT NULL,
+    account_id VARCHAR NOT NULL,
+    FOREIGN KEY (account_id) REFERENCES accounts(id)
 );
 
 CREATE TABLE units (

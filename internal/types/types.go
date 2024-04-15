@@ -11,6 +11,7 @@ type TemplateData struct {
 	IsAuthenticated bool
 	CSRFToken       string
 	Account         models.Account
+	Courses         []models.Course
 	Form            map[string]any
 }
 

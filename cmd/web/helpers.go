@@ -6,7 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
+	"strings"
 
 	"github.com/go-playground/form/v4"
 	"github.com/sashabaranov/go-openai"
@@ -44,17 +46,25 @@ func (app *application) isAuthenticated(r *http.Request) bool {
 	return isAuthenticated
 }
 
-func (app *application) getAccountFromRequestID(r *http.Request) (models.Account, error) {
+func (app *application) requestGetAccountID(r *http.Request) (string, error) {
 	accountID := r.Context().Value(accountIDContextKey)
 	if accountID == nil {
-		return models.Account{}, nil
+		return "", nil
 	}
 	accountIDString, ok := accountID.(string)
 	if !ok {
+		return "", nil
+	}
+	return strings.Trim(accountIDString, `"`), nil
+}
+
+func (app *application) requestGetAccount(r *http.Request) (models.Account, error) {
+	accountID, err := app.requestGetAccountID(r)
+	if err != nil {
 		return models.Account{}, nil
 	}
 
-	account, err := app.accounts.Get(accountIDString)
+	account, err := app.accounts.Get(accountID)
 	if err != nil {
 		if errors.Is(err, models.ErrorNoRecord) {
 			return models.Account{}, nil
@@ -102,7 +112,18 @@ type ImageSet struct {
 }
 
 func getUnsplashImage(query string) (PhotoResponse, error) {
-	resp, err := http.Get(fmt.Sprintf("https://api.unsplash.com/search/photos?per_page=1&query=%s&client_id=%s", query, os.Getenv("UNSPLASH_ACCESS_KEY")))
+	baseURL := "https://api.unsplash.com/search/photos"
+	clientID := os.Getenv("UNSPLASH_ACCESS_KEY")
+	params := url.Values{}
+	params.Add("per_page", "1")
+	params.Add("query", query)
+	params.Add("client_id", clientID)
+	fullURL := fmt.Sprintf("%s?%s", baseURL, params.Encode())
+
+	resp, err := http.Get(fullURL)
+	if resp.StatusCode != http.StatusOK {
+		return PhotoResponse{}, fmt.Errorf("API request failed with status code %d", resp.StatusCode)
+	}
 	if err != nil {
 		return PhotoResponse{}, err
 	}

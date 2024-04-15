@@ -32,12 +32,23 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) dashboard(w http.ResponseWriter, r *http.Request) {
-	data, err := app.newTemplateData(r)
+	accountID, err := app.requestGetAccountID(r)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+	courses, err := app.courses.All(accountID)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
 	}
 
+	data, err := app.newTemplateData(r)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+	data.Courses = courses
 	dashboardPage := pages.Dashboard(data)
 	app.render(w, r, http.StatusOK, dashboardPage)
 }
@@ -89,6 +100,12 @@ func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// ** form validation completed **
+	accountID, err := app.requestGetAccountID(r)
+	if err != nil || accountID == "" {
+		app.serverError(w, r, err)
+		return
+	}
 	unsplashSearchTerm, err := getImageSearchTermFromTitle(app.openAiClient, form.Title)
 	if err != nil {
 		app.serverError(w, r, err)
@@ -99,7 +116,7 @@ func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, r, err)
 		return
 	}
-	courseID, err := app.courses.Insert(form.Title, unsplashResult.Results[0].Images.Regular)
+	courseID, err := app.courses.Insert(form.Title, unsplashResult.Results[0].Images.Regular, accountID)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
@@ -113,8 +130,7 @@ func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
 		}(unit)
 	}
 
-	courseCreateInputs := pages.CourseCreateFormInputs(form)
-	app.render(w, r, http.StatusOK, courseCreateInputs)
+	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
 
 func (app *application) callback(w http.ResponseWriter, r *http.Request) {
