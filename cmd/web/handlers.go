@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/markbates/goth/gothic"
+	"github.com/shariqali-dev/discovery-trail/internal/gpt"
 	"github.com/shariqali-dev/discovery-trail/internal/models"
 	"github.com/shariqali-dev/discovery-trail/internal/types"
 	"github.com/shariqali-dev/discovery-trail/internal/validator"
@@ -42,13 +43,24 @@ func (app *application) dashboard(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, r, err)
 		return
 	}
+	coursesWithUnitTitles := make([]types.TemplateCourseWithUnitTitles, len(courses))
+	for cdx, course := range courses {
+		unitTitles, err := app.units.GetCourseUnitTitles(course.ID)
+		if err != nil {
+			app.serverError(w, r, err)
+		}
+		coursesWithUnitTitles[cdx] = types.TemplateCourseWithUnitTitles{
+			Course:     course,
+			UnitTitles: unitTitles,
+		}
+	}
 
 	data, err := app.newTemplateData(r)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
 	}
-	data.Courses = courses
+	data.Courses = coursesWithUnitTitles
 	dashboardPage := pages.Dashboard(data)
 	app.render(w, r, http.StatusOK, dashboardPage)
 }
@@ -85,52 +97,70 @@ func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
 	form.CheckField(validator.NotBlank(form.Title), "title", "This field cannot be blank")
 	form.CheckField(validator.MinCount(form.UnitCount, 1), "unit-count", "Cant have less than 1 unit")
 	form.CheckField(validator.MaxCount(form.UnitCount, 5), "unit-count", "Cant have more than 5 unit")
-	for unit := range form.UnitCount {
-		unit++
-		unitString := fmt.Sprintf("unit-%d", unit)
+	for udx := range form.UnitCount {
+		udx++
+		unitString := fmt.Sprintf("unit-%d", udx)
 		unitFormValue := r.PostForm.Get(unitString)
 		form.UnitValues[unitString] = unitFormValue
 
 		form.CheckField(validator.NotBlank(unitFormValue), unitString, "This field cannot be blank")
-		form.CheckField(validator.MaxChars(unitFormValue, 30), unitString, "This field cannot be more than 30 characters long")
+		form.CheckField(validator.MaxChars(unitFormValue, 40), unitString, "This field cannot be more than 40 characters long")
 	}
+	// ** form validation completed **
 	if !form.Valid() {
 		courseCreateFormInputs := pages.CourseCreateFormInputs(form)
 		app.render(w, r, http.StatusOK, courseCreateFormInputs)
 		return
 	}
 
-	// ** form validation completed **
 	accountID, err := app.requestGetAccountID(r)
 	if err != nil || accountID == "" {
 		app.serverError(w, r, err)
 		return
 	}
-	unsplashSearchTerm, err := getImageSearchTermFromTitle(app.openAiClient, form.Title)
+	unsplashSearchTerm, err := gpt.GetImageSearchTermFromTitle(app.openAiClient, form.Title)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
 	}
-	unsplashResult, err := getUnsplashImage(strings.TrimSpace(unsplashSearchTerm.SearchTerm))
+	unsplashResult, err := unsplashGetImage(strings.TrimSpace(unsplashSearchTerm.SearchTerm))
 	if err != nil {
 		app.serverError(w, r, err)
 		return
 	}
-	courseID, err := app.courses.Insert(form.Title, unsplashResult.Results[0].Images.Regular, accountID)
+	generatedCourseInformation, err := gpt.GenereateCourseTitleAndUnitChapters(app.openAiClient, form.Title, form.UnitValues)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
 	}
+	courseID, err := app.courses.Insert(generatedCourseInformation.Title, unsplashResult.Results[0].Images.Regular, accountID)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+	for _, unit := range generatedCourseInformation.Units {
+		unitID, err := app.units.Insert(unit.Title, courseID)
+		if err != nil {
+			app.serverError(w, r, err)
+			return
+		}
+		for _, chapter := range unit.Chapters {
+			err := app.chapters.Insert(chapter.ChapterTitle, chapter.YouTubeSearchQuery, unitID)
+			if err != nil {
+				app.serverError(w, r, err)
+				return
+			}
+		}
+	}
+	// for unit := 1; unit <= form.UnitCount; unit++ {
+	// 	go func(unit int) {
+	// 		_ = courseID
+	// 	}(unit)
+	// }
 
-	for unit := 1; unit <= form.UnitCount; unit++ {
-		go func(unit int) {
-			_ = courseID
-			// start the openai course creation here
-			// update the databsae with the course creation test
-		}(unit)
-	}
+	w.Header().Set("HX-Redirect", "/dashboard")
+	w.WriteHeader(http.StatusSeeOther)
 
-	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
 
 func (app *application) callback(w http.ResponseWriter, r *http.Request) {

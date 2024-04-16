@@ -5,13 +5,18 @@ import (
 	"github.com/shariqali-dev/discovery-trail/internal/validator"
 )
 
+type TemplateCourseWithUnitTitles struct {
+	UnitTitles []string
+	models.Course
+}
+
 type TemplateData struct {
 	Nonce           string
 	Flash           string
 	IsAuthenticated bool
 	CSRFToken       string
 	Account         models.Account
-	Courses         []models.Course
+	Courses         []TemplateCourseWithUnitTitles
 	Form            map[string]any
 }
 

@@ -12,7 +12,7 @@ CREATE TABLE accounts (
 );
 
 CREATE TABLE courses (
-    id INT PRIMARY KEY,
+    id VARCHAR PRIMARY KEY,
     name VARCHAR NOT NULL,
     image VARCHAR NOT NULL,
     account_id VARCHAR NOT NULL,
@@ -20,24 +20,24 @@ CREATE TABLE courses (
 );
 
 CREATE TABLE units (
-    id INT PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR NOT NULL,
-    course_id INT NOT NULL,
+    course_id VARCHAR NOT NULL,
     FOREIGN KEY (course_id) REFERENCES courses(id)
 );
 
 CREATE TABLE chapters (
-    id INT PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR NOT NULL,
     youtubeSearchQuery VARCHAR NOT NULL,
-    videoID VARCHAR NOT NULL,
-    summary VARCHAR NOT NULL,
+    videoID VARCHAR,
+    summary VARCHAR,
     unit_id INT NOT NULL,
     FOREIGN KEY (unit_id) REFERENCES units(id)
 );
 
 CREATE TABLE questions (
-    id INT PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     question VARCHAR NOT NULL,
     answer VARCHAR NOT NULL,
     options VARCHAR NOT NULL,

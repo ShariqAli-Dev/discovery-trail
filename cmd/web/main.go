@@ -24,6 +24,8 @@ type application struct {
 	accounts     models.AccountModelInterface
 	sessions     models.SessionModelInterface
 	courses      models.CourseModelInterface
+	units        models.UnitModelInterface
+	chapters     models.ChapterModelInterface
 	store        *sessions.CookieStore
 	formDecoder  *form.Decoder
 	openAiClient *openai.Client
@@ -64,6 +66,8 @@ func main() {
 		accounts:     &models.AccountModel{DB: db},
 		sessions:     &models.SessionModel{DB: db},
 		courses:      &models.CourseModel{DB: db},
+		units:        &models.UnitModel{DB: db},
+		chapters:     &models.ChapterModel{DB: db},
 		store:        store,
 		formDecoder:  formDecoder,
 		openAiClient: openAiClient,
@@ -79,7 +83,7 @@ func main() {
 		TLSConfig:    tlsConfig,
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
+		WriteTimeout: 15 * time.Second,
 	}
 
 	err = server.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
