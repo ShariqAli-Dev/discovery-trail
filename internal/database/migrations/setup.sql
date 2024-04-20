@@ -15,6 +15,7 @@ CREATE TABLE courses (
     id VARCHAR PRIMARY KEY,
     name VARCHAR NOT NULL,
     image VARCHAR NOT NULL,
+    processed BOOLEAN NOT NULL DEFAULT 0,
     account_id VARCHAR NOT NULL,
     FOREIGN KEY (account_id) REFERENCES accounts(id)
 );
@@ -33,6 +34,8 @@ CREATE TABLE chapters (
     videoID VARCHAR,
     summary VARCHAR,
     unit_id INT NOT NULL,
+    questionsStatus VARCHAR NOT NULL,
+    questionAttempts INT NOT NULL,
     FOREIGN KEY (unit_id) REFERENCES units(id)
 );
 

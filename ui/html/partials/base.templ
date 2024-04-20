@@ -12,7 +12,7 @@ templ BaseHTML(jsFile string, data types.TemplateData, scriptSources []string) {
 			<link rel="stylesheet" type="text/css" href="/static/dist/global.css"/>
 			<script nonce={ data.Nonce } src="/static/dist/htmx.js"></script>
 			<script nonce={ data.Nonce } src="/static/dist/theme-change.js"></script>
-			<script nonce={ data.Nonce } src="https://cdn.jsdelivr.net/npm/lucide@0.294.0/dist/umd/lucide.min.js"></script>
+			<script nonce={ data.Nonce } src="https://unpkg.com/htmx.org@1.9.11/dist/ext/disable-element.js"></script>
 			<style nonce={ data.Nonce }>
 				.htmx-indicator{opacity:0;transition: opacity 200ms ease-in;}
 				.htmx-request .htmx-indicator{opacity:1}

@@ -1,0 +1,53 @@
+package pages
+
+import "github.com/shariqali-dev/discovery-trail/ui/html/partials"
+import "github.com/shariqali-dev/discovery-trail/internal/types"
+import "fmt"
+import "github.com/shariqali-dev/discovery-trail/internal/models"
+
+templ ChapterQuestionsRender(cdx int, chapter models.Chapter, csrfToken string) {
+	switch chapter.QuestionsStatus.Value {
+		case models.QuestionStatuses[models.Completed].Value:
+			<div class="text-white bg-green-300 completed">
+				<h4>{ fmt.Sprintf("Chapter %d %s", cdx + 1, chapter.Name) }</h4>
+			</div>
+		case models.QuestionStatuses[models.Error].Value:
+			<div class="flex justify-between text-white bg-red-400" hx-trigger="load, every 3s" hx-swap="outerHTML" hx-post={ fmt.Sprintf("/chapter/%d/%d", chapter.ID, cdx) } hx-headers={ fmt.Sprintf(`{"X-CSRF-TOKEN": "%s"}`, csrfToken) }>
+				<h4>{ fmt.Sprintf("Chapter %d %s", cdx + 1, chapter.Name) }</h4>
+				<img id="indicator" class="w-8 h-8 htmx-indicator" src="/static/dist/spinner.gif"/>
+			</div>
+		default:
+			<div class="flex justify-between" hx-trigger="load, every 3s" hx-swap="outerHTML" hx-post={ fmt.Sprintf("/chapter/%d/%d", chapter.ID, cdx) } hx-headers={ fmt.Sprintf(`{"X-CSRF-TOKEN": "%s"}`, csrfToken) }>
+				<h4>{ fmt.Sprintf("Chapter %d %s", cdx + 1, chapter.Name) }</h4>
+				<img id="indicator" class="w-8 h-8 htmx-indicator" src="/static/dist/spinner.gif"/>
+			</div>
+	}
+}
+
+templ CreateCourse(data types.TemplateData) {
+	@partials.BaseHTML("createCourse", data, nil) {
+		@partials.Navbar(data.IsAuthenticated, data.CSRFToken)
+		<main class="flex flex-col flex-1 w-full max-w-5xl p-4 m-auto bg-base-200">
+			<div role="alert" class="alert alert-info">
+				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-6 h-6 stroke-current shrink-0"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+				<span>We generated chapters for each of your units. Look over them and then click the "Finish Course Generation" button to confirm and continue.</span>
+			</div>
+			for udx, unit := range data.CourseUnitsChapters.Units {
+				<section>
+					<h3>{ fmt.Sprintf("Unit %d", udx +1 ) }</h3>
+					<h2>{ unit.Name }</h2>
+					<div class="chapter-container">
+						for cdx, chapter := range unit.Chapters {
+							@ChapterQuestionsRender(cdx, chapter, data.CSRFToken)
+						}
+					</div>
+				</section>
+				<br/>
+			}
+			<div>
+				<button>Back</button>
+				<button disabled class="btn btn-primary" id="button-generate-course">Generate</button>
+			</div>
+		</main>
+	}
+}

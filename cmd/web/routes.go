@@ -27,6 +27,8 @@ func (app *application) routes() http.Handler {
 	mux.Handle("GET /create", protected.ThenFunc(app.create))
 	mux.Handle("POST /create", protected.ThenFunc(app.createPost))
 	mux.Handle("POST /logout/{provider}", protected.ThenFunc(app.logout))
+	mux.Handle("GET /create/{courseID}", protected.ThenFunc(app.createCourse))
+	mux.Handle("POST /chapter/{chapterID}/{cdx}", protected.ThenFunc(app.chapterStatusPost))
 
 	standard := alice.New(app.recoverPanic, app.logRequest, app.generateNonce, app.commonHeaders)
 	return standard.Then(mux)

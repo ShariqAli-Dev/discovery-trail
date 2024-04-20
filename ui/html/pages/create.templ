@@ -16,17 +16,17 @@ templ Create(data types.TemplateData) {
 				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-6 h-6 stroke-current shrink-0"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
 				<span>Enter in a course title, or what you want to learn about. Then enter a list of units, which are the specifics you want to learn. Our AI will then generate you a course!</span>
 			</div>
-			<form hx-post="/create" hx-swap="outerHTML" hx-target="#course-create-inputs">
+			<form hx-post="/create" hx-swap="outerHTML" hx-target="#course-create-inputs" hx-ext="disable-element" hx-disable-element=".to-disable">
 				<input type="hidden" name="csrf_token" value={ data.CSRFToken }/>
 				<input type="hidden" name="unit-count" id="input-unit-count" value="2" min="1"/>
 				@CourseCreateFormInputs(types.CourseCreateForm{UnitCount: 2})
 				<div>
-					<button type="button" class="btn btn-primary" id="button-add-unit">Add Unit</button>
-					<button type="button" class="btn btn-primary" id="button-remove-unit">Remove Unit</button>
+					<button type="button" class="btn btn-primary to-disable" id="button-add-unit">Add Unit</button>
+					<button type="button" class="btn btn-primary to-disable" id="button-remove-unit">Remove Unit</button>
 				</div>
-				<button type="submit">
+				<button type="submit" class="to-disable">
 					Lets Go!	
-					// <img id="indicator" class="htmx-indicator" src="/spinner.gif"/>
+					<img id="indicator" class="htmx-indicator" src="/static/dist/spinner.gif"/>
 				</button>
 				<div>
 					{ fmt.Sprintf("%d",data.Account.Credits) } / 10 Free Generations
@@ -60,6 +60,9 @@ templ CourseCreateFormInputs(form types.CourseCreateForm) {
 		</div>
 		if (form.FieldErrors["unit-count"] != "") {
 			<label class="error">{ form.FieldErrors["unit-count"] }</label>
+		}
+		if (form.FieldErrors["credits"] != "") {
+			<label class="error">{ form.FieldErrors["credits"] }</label>
 		}
 	</div>
 }

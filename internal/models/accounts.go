@@ -16,6 +16,8 @@ type AccountModelInterface interface {
 	Insert(id, name, email string) error
 	Exists(id string) (bool, error)
 	Get(id string) (Account, error)
+	GetCredits(id string) (int, error)
+	DecrementCredits(id string, currentCredits int) (int, error)
 }
 
 type AccountModel struct {
@@ -58,4 +60,22 @@ func (m *AccountModel) Get(id string) (Account, error) {
 	}
 
 	return account, nil
+}
+
+func (m *AccountModel) GetCredits(id string) (int, error) {
+	var credits int
+	sqlStatement := "SELECT credits FROM accounts WHERE id = ?"
+	err := m.DB.QueryRow(sqlStatement, id).Scan(&credits)
+	if err != nil {
+		return 0, err
+	}
+
+	return credits, nil
+}
+
+func (m *AccountModel) DecrementCredits(id string, currentCredits int) (int, error) {
+	sqlStatement := "UPDATE accounts SET credits  = ? WHERE id = ?"
+	var newCreditBalance = currentCredits - 1
+	_, err := m.DB.Exec(sqlStatement, newCreditBalance, id)
+	return newCreditBalance, err
 }

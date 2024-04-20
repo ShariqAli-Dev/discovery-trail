@@ -43,13 +43,13 @@ func (app *application) dashboard(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, r, err)
 		return
 	}
-	coursesWithUnitTitles := make([]types.TemplateCourseWithUnitTitles, len(courses))
+	coursesWithUnitTitles := make([]types.CourseWithUnitTitles, len(courses))
 	for cdx, course := range courses {
 		unitTitles, err := app.units.GetCourseUnitTitles(course.ID)
 		if err != nil {
 			app.serverError(w, r, err)
 		}
-		coursesWithUnitTitles[cdx] = types.TemplateCourseWithUnitTitles{
+		coursesWithUnitTitles[cdx] = types.CourseWithUnitTitles{
 			Course:     course,
 			UnitTitles: unitTitles,
 		}
@@ -74,6 +74,51 @@ func (app *application) create(w http.ResponseWriter, r *http.Request) {
 
 	createPage := pages.Create(data)
 	app.render(w, r, http.StatusOK, createPage)
+}
+
+func (app *application) createCourse(w http.ResponseWriter, r *http.Request) {
+	courseID := r.PathValue("courseID")
+	if courseID == "" {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	}
+
+	course, err := app.courses.Get(courseID)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+	if course.Processed {
+		http.Redirect(w, r, fmt.Sprintf("/course/%s", courseID), http.StatusSeeOther)
+		return
+	}
+	data, err := app.newTemplateData(r)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+	courseUnits, err := app.units.GetCourseUnits(course.ID)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+	courseUnitsChapters := types.CourseWithUnitsWithChapters{
+		Course: course,
+		Units:  make([]types.UnitWithChapters, 0),
+	}
+	for _, unit := range courseUnits {
+		unitChapters, err := app.chapters.GetUnitChapters(unit.ID)
+		if err != nil {
+			app.serverError(w, r, err)
+			return
+		}
+		courseUnitsChapters.Units = append(courseUnitsChapters.Units, types.UnitWithChapters{
+			Chapters: unitChapters,
+			Unit:     unit,
+		})
+	}
+	data.CourseUnitsChapters = courseUnitsChapters
+	createCoursePage := pages.CreateCourse(data)
+	app.render(w, r, http.StatusOK, createCoursePage)
 }
 
 func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
@@ -106,6 +151,17 @@ func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
 		form.CheckField(validator.NotBlank(unitFormValue), unitString, "This field cannot be blank")
 		form.CheckField(validator.MaxChars(unitFormValue, 40), unitString, "This field cannot be more than 40 characters long")
 	}
+	accountID, err := app.requestGetAccountID(r)
+	if err != nil || accountID == "" {
+		app.serverError(w, r, err)
+		return
+	}
+	credits, err := app.accounts.GetCredits(accountID)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+	form.CheckField(validator.MinCount(credits, 1), "credits", "Invalid credits")
 	// ** form validation completed **
 	if !form.Valid() {
 		courseCreateFormInputs := pages.CourseCreateFormInputs(form)
@@ -113,11 +169,6 @@ func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accountID, err := app.requestGetAccountID(r)
-	if err != nil || accountID == "" {
-		app.serverError(w, r, err)
-		return
-	}
 	unsplashSearchTerm, err := gpt.GetImageSearchTermFromTitle(app.openAiClient, form.Title)
 	if err != nil {
 		app.serverError(w, r, err)
@@ -152,15 +203,19 @@ func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+	_, err = app.accounts.DecrementCredits(accountID, credits)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
 	// for unit := 1; unit <= form.UnitCount; unit++ {
 	// 	go func(unit int) {
 	// 		_ = courseID
 	// 	}(unit)
 	// }
 
-	w.Header().Set("HX-Redirect", "/dashboard")
+	w.Header().Set("HX-Redirect", fmt.Sprintf("/create/%s", courseID))
 	w.WriteHeader(http.StatusSeeOther)
-
 }
 
 func (app *application) callback(w http.ResponseWriter, r *http.Request) {
@@ -303,4 +358,54 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+}
+
+func (app *application) chapterStatusPost(w http.ResponseWriter, r *http.Request) {
+	csrfToken := r.Header.Get("X-CSRF-TOKEN")
+	chapterID := r.PathValue("chapterID")
+	cdx := r.PathValue("cdx")
+	chapterIDInt, err := strconv.Atoi(chapterID)
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	cdxInt, err := strconv.Atoi(cdx)
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	chapter, err := app.chapters.Get(int64(chapterIDInt))
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	generatedQuestion, err := gpt.GenerateQuestionFromChapter(app.openAiClient, chapter.Name)
+	if err != nil {
+		app.renderErrorChapter(w, r, chapter, cdxInt, csrfToken, err)
+		return
+	}
+	questionID, err := app.questions.Insert(generatedQuestion, chapter.ID)
+	if err != nil {
+		app.renderErrorChapter(w, r, chapter, cdxInt, csrfToken, err)
+		return
+	}
+	if err = app.chapters.UpdateChapterQuestionStatus(chapter.ID, models.QuestionStatuses[models.Completed]); err != nil {
+		_ = app.questions.Delete(questionID)
+		app.renderErrorChapter(w, r, chapter, cdxInt, csrfToken, err)
+		return
+	}
+
+	chapter.QuestionsStatus = models.QuestionStatuses[models.Completed]
+	chapterStatusPost := pages.ChapterQuestionsRender(cdxInt, chapter, csrfToken)
+	app.render(w, r, http.StatusOK, chapterStatusPost)
+
+}
+func (app *application) renderErrorChapter(w http.ResponseWriter, r *http.Request, chapter models.Chapter, cdx int, csrfToken string, err error) {
+	fmt.Println(err)
+	_ = app.chapters.UpdateChapterQuestionStatus(chapter.ID, models.QuestionStatuses[models.Completed])
+	chapter.QuestionsStatus = models.QuestionStatuses[models.Error]
+	chapterStatusPost := pages.ChapterQuestionsRender(cdx, chapter, csrfToken)
+	app.render(w, r, http.StatusOK, chapterStatusPost)
 }

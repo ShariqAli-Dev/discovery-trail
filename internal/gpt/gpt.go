@@ -54,6 +54,37 @@ func GenereateCourseTitleAndUnitChapters(client *openai.Client, title string, un
 	return courseTitleAndChapters, nil
 }
 
+type GeneratedQuestion struct {
+	Question string   `json:"question"`
+	Answer   string   `json:"answer"`
+	Options  []string `json:"options"`
+}
+
+func GenerateQuestionFromChapter(client *openai.Client, chapterName string) (GeneratedQuestion, error) {
+	resp, err := client.CreateChatCompletion(context.Background(), openai.ChatCompletionRequest{
+		Model: openai.GPT3Dot5Turbo,
+		Messages: []openai.ChatCompletionMessage{
+			{
+				Role:    openai.ChatMessageRoleSystem,
+				Content: `You are an AI capable of generating a question, answer, and 3 options (no more, no less) for a given chapter title. Provide these in the JSON format as shown: { "question": "generated question here", "answer": "generated answer here", "options": ["Option 1","Option 2","Option 3"] }`,
+			},
+			{
+				Role:    openai.ChatMessageRoleUser,
+				Content: fmt.Sprintf("I have a chapter titled, %s.", chapterName),
+			},
+		},
+	})
+	_ = resp
+	if err != nil {
+		return GeneratedQuestion{}, err
+	}
+	var generatedQuestion GeneratedQuestion
+	if err = json.Unmarshal([]byte(resp.Choices[0].Message.Content), &generatedQuestion); err != nil {
+		return generatedQuestion, err
+	}
+	return generatedQuestion, nil
+}
+
 func GetImageSearchTermFromTitle(client *openai.Client, title string) (ImageSearchTerm, error) {
 	resp, err := client.CreateChatCompletion(context.Background(), openai.ChatCompletionRequest{
 		Model: openai.GPT3Dot5Turbo,
@@ -69,12 +100,12 @@ func GetImageSearchTermFromTitle(client *openai.Client, title string) (ImageSear
 		},
 	})
 	if err != nil {
-		return ImageSearchTerm{}, nil
+		return ImageSearchTerm{}, err
 	}
 
 	var imageSearchTerm ImageSearchTerm
 	if err = json.Unmarshal([]byte(resp.Choices[0].Message.Content), &imageSearchTerm); err != nil {
-		return ImageSearchTerm{}, nil
+		return ImageSearchTerm{}, err
 	}
 	return imageSearchTerm, nil
 }

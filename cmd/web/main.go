@@ -26,6 +26,7 @@ type application struct {
 	courses      models.CourseModelInterface
 	units        models.UnitModelInterface
 	chapters     models.ChapterModelInterface
+	questions    models.QuestionModelInterface
 	store        *sessions.CookieStore
 	formDecoder  *form.Decoder
 	openAiClient *openai.Client
@@ -68,6 +69,7 @@ func main() {
 		courses:      &models.CourseModel{DB: db},
 		units:        &models.UnitModel{DB: db},
 		chapters:     &models.ChapterModel{DB: db},
+		questions:    &models.QuestionModel{DB: db},
 		store:        store,
 		formDecoder:  formDecoder,
 		openAiClient: openAiClient,
