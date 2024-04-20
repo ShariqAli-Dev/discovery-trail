@@ -45,8 +45,11 @@ templ CreateCourse(data types.TemplateData) {
 				<br/>
 			}
 			<div>
-				<button>Back</button>
-				<button disabled class="btn btn-primary" id="button-generate-course">Generate</button>
+				<button class="to-disable">Back</button>
+				<button hx-ext="disable-element" hx-disable-element=".to-disable" disabled hx-trigger="click" hx-post={ fmt.Sprintf("/course/process/%s", data.CourseUnitsChapters.ID) } hx-headers={ fmt.Sprintf(`{"X-CSRF-TOKEN": "%s"}`, data.CSRFToken) } class="to-disable btn btn-primary" id="button-generate-course">
+					Generate
+					<img id="indicator" class="w-8 h-8 htmx-indicator" src="/static/dist/spinner.gif"/>
+				</button>
 			</div>
 		</main>
 	}

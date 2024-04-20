@@ -8,4 +8,4 @@ bin
 tls/** 
 ui/html/**/*_templ.go
 ui/html/**/*_templ.txt
-ui/html/static/public/global.css
+ui/static/public/global.css

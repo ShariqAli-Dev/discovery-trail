@@ -19,6 +19,7 @@ type CourseModelInterface interface {
 	Insert(name, image, account_id string) (string, error)
 	All(account_id string) ([]Course, error)
 	Get(course_id string) (Course, error)
+	Process(courseID string) error
 }
 
 type CourseModel struct {
@@ -50,7 +51,7 @@ func (m *CourseModel) Get(course_id string) (Course, error) {
 }
 
 func (m *CourseModel) All(account_id string) ([]Course, error) {
-	sqlStatement := "SELECT id, name, image FROM courses WHERE account_id = ?"
+	sqlStatement := "SELECT id, name, image, processed FROM courses WHERE account_id = ?"
 	rows, err := m.DB.Query(sqlStatement, account_id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -62,7 +63,7 @@ func (m *CourseModel) All(account_id string) ([]Course, error) {
 	var courses []Course
 	for rows.Next() {
 		var course Course
-		err := rows.Scan(&course.ID, &course.Name, &course.Image)
+		err := rows.Scan(&course.ID, &course.Name, &course.Image, &course.Processed)
 		if err != nil {
 			return []Course{}, err
 		}
@@ -72,4 +73,10 @@ func (m *CourseModel) All(account_id string) ([]Course, error) {
 		return []Course{}, nil
 	}
 	return courses, nil
+}
+
+func (m *CourseModel) Process(courseID string) error {
+	sqlStatement := "UPDATE courses SET processed = 1 WHERE id = ?"
+	_, err := m.DB.Exec(sqlStatement, courseID)
+	return err
 }

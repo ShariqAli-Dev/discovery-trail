@@ -208,11 +208,6 @@ func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, r, err)
 		return
 	}
-	// for unit := 1; unit <= form.UnitCount; unit++ {
-	// 	go func(unit int) {
-	// 		_ = courseID
-	// 	}(unit)
-	// }
 
 	w.Header().Set("HX-Redirect", fmt.Sprintf("/create/%s", courseID))
 	w.WriteHeader(http.StatusSeeOther)
@@ -408,4 +403,24 @@ func (app *application) renderErrorChapter(w http.ResponseWriter, r *http.Reques
 	chapter.QuestionsStatus = models.QuestionStatuses[models.Error]
 	chapterStatusPost := pages.ChapterQuestionsRender(cdx, chapter, csrfToken)
 	app.render(w, r, http.StatusOK, chapterStatusPost)
+}
+
+func (app *application) courseProcess(w http.ResponseWriter, r *http.Request) {
+	courseID := r.PathValue("courseID")
+	if err := app.courses.Process(courseID); err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+	w.Header().Set("HX-Redirect", fmt.Sprintf("/course/%s", courseID))
+	w.WriteHeader(http.StatusSeeOther)
+}
+
+func (app *application) courseView(w http.ResponseWriter, r *http.Request) {
+	data, err := app.newTemplateData(r)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+	courseView := pages.Course(data)
+	app.render(w, r, http.StatusOK, courseView)
 }

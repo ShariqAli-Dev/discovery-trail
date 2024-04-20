@@ -1,0 +1,13 @@
+package pages
+
+import "github.com/shariqali-dev/discovery-trail/internal/types"
+import "github.com/shariqali-dev/discovery-trail/ui/html/partials"
+
+templ Course(data types.TemplateData) {
+	@partials.BaseHTML("course", data, nil) {
+		@partials.Navbar(data.IsAuthenticated, data.CSRFToken)
+		<main class="flex flex-col flex-1 w-full max-w-5xl p-4 m-auto bg-base-200">
+			I am the course page here
+		</main>
+	}
+}
