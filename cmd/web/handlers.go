@@ -179,12 +179,12 @@ func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, r, err)
 		return
 	}
-	generatedCourseInformation, err := gpt.GenereateCourseTitleAndUnitChapters(app.openAiClient, form.Title, form.UnitValues)
+	generatedCourseInformation, err := gpt.GenerateCourseTitleAndUnitChapters(app.openAiClient, form.Title, form.UnitValues)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
 	}
-	courseID, err := app.courses.Insert(generatedCourseInformation.Title, unsplashResult.Results[0].Images.Regular, accountID)
+	courseID, err := app.courses.Insert(generatedCourseInformation.Title, unsplashResult.Results[0].Images.Small, accountID)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
@@ -196,7 +196,12 @@ func (app *application) createPost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		for _, chapter := range unit.Chapters {
-			err := app.chapters.Insert(chapter.ChapterTitle, chapter.YouTubeSearchQuery, unitID)
+			youtubeVideoID, err := youtubeGetVideoIDFromSeachQuery(chapter.YouTubeSearchQuery)
+			if err != nil {
+				app.serverError(w, r, err)
+				return
+			}
+			err = app.chapters.Insert(chapter.ChapterTitle, chapter.YouTubeSearchQuery, unitID, chapter.Summary, youtubeVideoID)
 			if err != nil {
 				app.serverError(w, r, err)
 				return

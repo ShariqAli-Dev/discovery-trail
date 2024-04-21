@@ -132,3 +132,34 @@ func unsplashGetImage(query string) (PhotoResponse, error) {
 	}
 	return photoResponse, err
 }
+
+type YoutubeVideoIDRespone struct {
+	Kind          string `json:"kind"`
+	Etag          string `json:"etag"`
+	NextPageToken string `json:"nextPageToken"`
+	RegionCode    string `json:"regionCode"`
+	PageInfo      struct {
+		TotalResults   int `json:"totalResults"`
+		ResultsPerPage int `json:"resultsPerPage"`
+	} `json:"pageInfo"`
+	Items []YouTubeVideo `json:"items"`
+}
+type YouTubeVideo struct {
+	Kind string `json:"kind"`
+	Etag string `json:"etag"`
+	Id   struct {
+		Kind    string `json:"kind"`
+		VideoId string `json:"videoId"`
+	} `json:"id"`
+}
+
+func youtubeGetVideoIDFromSeachQuery(searchQuery string) (string, error) {
+	resp, err := http.Get(fmt.Sprintf("https://www.googleapis.com/youtube/v3/search?key=%s&q=%s&videoDuration=medium&videoEmbeddable=true&type=video&maxResults=5", os.Getenv("YOUTUBE_API_KEY"), url.QueryEscape(searchQuery)))
+	if err != nil {
+		return "", err
+	}
+	var youtubeResponse YoutubeVideoIDRespone
+	defer resp.Body.Close()
+	err = json.NewDecoder(resp.Body).Decode(&youtubeResponse)
+	return youtubeResponse.Items[0].Id.VideoId, err
+}

@@ -35,7 +35,7 @@ type QuestionStatus struct {
 type QuestionStatusKey string
 
 type ChapterModelInterface interface {
-	Insert(name, youtubeQuery string, unitID int64) error
+	Insert(name, youtubeQuery string, unitID int64, summary string, videoID string) error
 	GetUnitChapters(unitID int64) ([]Chapter, error)
 	Get(chapterID int64) (Chapter, error)
 	UpdateChapterQuestionStatus(chapterID int64, status QuestionStatus) error
@@ -45,9 +45,9 @@ type ChapterModel struct {
 	DB *sql.DB
 }
 
-func (m *ChapterModel) Insert(name, youtubeQuery string, unitID int64) error {
-	sqlStatement := "INSERT INTO chapters (name, youtubeSearchQuery, unit_id, questionsStatus,questionAttempts ) VALUES (?, ?, ?, ?, 0)"
-	_, err := m.DB.Exec(sqlStatement, name, youtubeQuery, unitID, QuestionStatuses[Pending].Value)
+func (m *ChapterModel) Insert(name, youtubeQuery string, unitID int64, summary string, videoID string) error {
+	sqlStatement := "INSERT INTO chapters (name, youtubeSearchQuery, unit_id, questionsStatus,questionAttempts,summary,videoID ) VALUES (?, ?, ?, ?, 0, ?, ?)"
+	_, err := m.DB.Exec(sqlStatement, name, youtubeQuery, unitID, QuestionStatuses[Pending].Value, summary, videoID)
 	return err
 }
 func (m *ChapterModel) GetUnitChapters(unitID int64) ([]Chapter, error) {

@@ -21,16 +21,17 @@ type Unit struct {
 type Chapter struct {
 	ChapterTitle       string `json:"chapter_title"`
 	YouTubeSearchQuery string `json:"youtube_search_query"`
+	Summary            string `json:"summary"`
 }
 type ImageSearchTerm struct {
 	SearchTerm string `json:"image_search_term"`
 }
 
-func GenereateCourseTitleAndUnitChapters(client *openai.Client, title string, unitValues map[string]string) (GeneratedCourseInformation, error) {
+func GenerateCourseTitleAndUnitChapters(client *openai.Client, title string, unitValues map[string]string) (GeneratedCourseInformation, error) {
 	messages := []openai.ChatCompletionMessage{
 		{
 			Role:    openai.ChatMessageRoleSystem,
-			Content: "You are an AI capable of curating course content, coming up with relevent chapter titles, and finding relevant youtube videos for each chapter. Provide the search term in the JSON format as shown:{ title: \"title of the unit\", units: \"an array of units \"}. Each unit should have { chapters: \"an array of chapters\", title: \"title of the chapter\" }. Each chapter should have a youtube_search_query and chapter_title key in the JSON object. Return at max 4 chapters per unit but make sure to generate chapters for every unit inputted by the user. Make sure to reword the course titles, unit titles, and chapter titles into better ones.",
+			Content: "You are an AI capable of curating course content, coming up with relevent chapter titles, and finding relevant youtube videos for each chapter. Provide the search term in the JSON format as shown:{ title: \"title of the unit\", units: \"an array of units \"}. Each unit should have { chapters: \"an array of chapters\", title: \"title of the chapter\" }. Each chapter should have a youtube_search_query and chapter_title and summary (3 paragraphs long) key in the JSON object. Return at max 4 chapters per unit but make sure to generate chapters for every unit inputted by the user. Make sure to reword the course titles, unit titles, and chapter titles into better ones.",
 		},
 	}
 	for _, name := range unitValues {
