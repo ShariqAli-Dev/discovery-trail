@@ -1,16 +1,14 @@
 package partials
 
 var themes = []string{
-	"light",
-	"cupcake",
-	"dark",
 	"autumn",
+	"dracula",
 }
 
 templ themeController() {
 	<div class="dropdown dropdown-end">
 		<label tabindex="0" class="btn btn-ghost">
-			<span class="text-3xl">
+			<span class="text-2xl text-base-content">
 				Theme
 			</span>
 			<svg width="18px" height="18px" class="hidden w-4 h-4 fill-current opacity-60 sm:inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048">
@@ -37,12 +35,12 @@ templ themeController() {
 
 templ Navbar(isAuthenticated bool, CSRFToken string) {
 	if isAuthenticated {
-		<header class="flex justify-between w-full max-w-5xl p-4 m-auto">
+		<header class="flex items-baseline justify-between w-full max-w-5xl p-4 m-auto">
 			<a href="/">
-				<h1>Discovery Trail</h1>
+				<h1 class="text-4xl font-bold text-center primary-content">Discovery Trail</h1>
 			</a>
 			<nav>
-				<a href="/create" class="mx-4">Create Course</a>
+				<a href="/create" class="mx-4 text-xl text-base-content">Create Course</a>
 				@themeController()
 				<div class="dropdown dropdown-end">
 					<form action="/logout/google" method="post">
@@ -63,14 +61,14 @@ templ Navbar(isAuthenticated bool, CSRFToken string) {
 			</nav>
 		</header>
 	} else {
-		<header class="flex justify-between w-full max-w-5xl p-4 m-auto">
+		<header class="flex items-baseline justify-between w-full max-w-5xl p-4 m-auto">
 			<a href="/">
-				<h1>Discovery Trail</h1>
+				<h1 class="text-4xl font-bold text-center primary-content">Discovery Trail</h1>
 			</a>
 			<nav>
 				@themeController()
-				<a class="btn btn-link" href="/auth/google">Log In</a>
-				<a class="btn btn-primary" href="/auth/google">Get Started</a>
+				<a class="text-xl btn btn-link" href="/auth/google">Log In</a>
+				<a class="text-lg btn btn-primary" href="/auth/google">Get Started</a>
 			</nav>
 		</header>
 	}

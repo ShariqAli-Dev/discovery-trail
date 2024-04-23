@@ -4,7 +4,7 @@ import "github.com/shariqali-dev/discovery-trail/internal/types"
 
 templ BaseHTML(jsFile string, data types.TemplateData, scriptSources []string) {
 	<!DOCTYPE html>
-	<html data-theme="light" lang="en">
+	<html data-theme="autumn" lang="en">
 		<head>
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -19,7 +19,7 @@ templ BaseHTML(jsFile string, data types.TemplateData, scriptSources []string) {
 				.htmx-request.htmx-indicator{opacity:1}
 			</style>
 		</head>
-		<body class="h-[100svh] w-full flex flex-col bg-base-100">
+		<body class="flex flex-col w-full h-full bg-base-200">
 			{ children... }
 			<script type="module" src="/static/dist/assets/index.js"></script>
 			for _, source := range scriptSources {

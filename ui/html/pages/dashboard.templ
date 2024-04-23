@@ -10,19 +10,16 @@ templ Dashboard(data types.TemplateData) {
 	@partials.BaseHTML("dashboard", data, nil) {
 		@partials.Navbar(data.IsAuthenticated, data.CSRFToken)
 		<main class="flex flex-col flex-1 w-full max-w-5xl p-4 m-auto">
-			<section class="flex justify-between">
-				<h2>Collection</h2>
-			</section>
 			<section class="flex flex-wrap items-center justify-around flex-1">
 				for _, course := range data.Courses {
-					<div class="shadow-xl card card-compact w-96 bg-base-100">
+					<div class="mb-4 border-4 rounded-sm shadow-sm border-accent card card-compact w-96 bg-base-100">
 						<figure><img src={ course.Image } alt="course image"/></figure>
 						<div class="card-body">
-							<h3 class="card-title">{ course.Name }</h3>
-							<h4>Units</h4>
+							<h3 class="font-bold card-title text-primary">{ course.Name }</h3>
+							<h4 class="text-lg font-semibold">Units</h4>
 							<ul>
 								for tdx, title := range course.UnitTitles {
-									<li>Unit { fmt.Sprintf("%d", tdx + 1) }: { title }</li>
+									<li class="text-lg link">Unit { fmt.Sprintf("%d", tdx + 1) }: { title }</li>
 								}
 							</ul>
 							<div class="justify-end card-actions">

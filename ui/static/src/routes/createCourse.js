@@ -1,3 +1,10 @@
+/** @type {?HTMLButtonElement}*/
+//@ts-ignore
+const goBackButton = document.getElementById("create-back-button");
+goBackButton?.addEventListener("click", () => {
+  window.location.href = "/";
+});
+
 const unitChapters = document.getElementsByClassName("chapter-container");
 validateChapters();
 
