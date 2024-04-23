@@ -420,7 +420,7 @@ func (app *application) courseProcess(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusSeeOther)
 }
 
-func (app *application) courseView(w http.ResponseWriter, r *http.Request) {
+func (app *application) courseUnitChapter(w http.ResponseWriter, r *http.Request) {
 	data, err := app.newTemplateData(r)
 	if err != nil {
 		app.serverError(w, r, err)

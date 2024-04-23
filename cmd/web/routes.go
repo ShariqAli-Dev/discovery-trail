@@ -29,9 +29,8 @@ func (app *application) routes() http.Handler {
 	mux.Handle("POST /logout/{provider}", protected.ThenFunc(app.logout))
 	mux.Handle("GET /create/{courseID}", protected.ThenFunc(app.createCourse))
 	mux.Handle("POST /chapter/{chapterID}/{cdx}", protected.ThenFunc(app.chapterStatusPost))
-
 	mux.Handle("POST /course/process/{courseID}", protected.ThenFunc(app.courseProcess))
-	mux.Handle("GET /course/{courseID}", protected.ThenFunc(app.courseView))
+	mux.Handle("GET /course/{courseID}/{unitID}/{chapterID}", protected.ThenFunc(app.courseUnitChapter))
 
 	standard := alice.New(app.recoverPanic, app.logRequest, app.generateNonce, app.commonHeaders)
 	return standard.Then(mux)

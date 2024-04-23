@@ -2,12 +2,51 @@ package pages
 
 import "github.com/shariqali-dev/discovery-trail/internal/types"
 import "github.com/shariqali-dev/discovery-trail/ui/html/partials"
+import "fmt"
 
 templ Course(data types.TemplateData) {
 	@partials.BaseHTML("course", data, nil) {
 		@partials.Navbar(data.IsAuthenticated, data.CSRFToken)
-		<main class="flex flex-col flex-1 w-full max-w-5xl p-4 m-auto bg-base-200">
-			I am the course page here
+		<main class="flex flex-1 w-full p-4 m-auto ">
+			// navigation
+			<section class="flex flex-col ">
+				for ndx := range 10 {
+					<div>
+						<h3>Unit { fmt.Sprintf("%d",ndx + 1) }</h3>
+						<h2>Limits and continutiy</h2>
+						for i := 0; i < 3; i++ {
+							<p>i am a chapter</p>
+						}
+					</div>
+				}
+			</section>
+			// video section
+			<section class="flex-1 bg-slate-500">
+				<div>
+					<h4>Unit 1 * Chapter 1</h4>
+					<h2>Introduction to limits</h2>
+				</div>
+				<div>
+					<iframe
+						title="chapter video"
+						className="w-full mt-4 aspect-video max-h-[24rem]"
+						src="https://www.youtube.com/embed/EGW2HS2tqAQ"
+						allowFullScreen
+					></iframe>
+					<h2>Summary</h2>
+					<p>
+						Lorem ipsum dolorstoaehunsotehuolrceuh.sth,.lurchoe sotehu loceuh osetuh oelucrh, .sth olecuhoetuh osetnuh oesnuh., lrch, uaoesthuoesnthuos
+						Lorem ipsum dolorstoaehunsotehuolrceuh.sth,.lurchoe sotehu loceuh osetuh oelucrh, .sth olecuhoetuh osetnuh oesnuh., lrch, uaoesthuoesnthuo	
+						Lorem ipsum dolorstoaehunsotehuolrceuh.sth,.lurchoe sotehu loceuh osetuh oelucrh, .sth olecuhoetuh osetnuh oesnuh., lrch, uaoesthuoesnthuo
+						Lorem ipsum dolorstoaehunsotehuolrceuh.sth,.lurchoe sotehu loceuh osetuh oelucrh, .sth olecuhoetuh osetnuh oesnuh., lrch, uaoesthuoesnthuoLorem ipsum dolorstoaehunsotehuolrceuh.sth,.lurchoe sotehu loceuh osetuh oelucrh, .sth olecuhoetuh osetnuh oesnuh., lrch, uaoesthuoesnthuoLorem ipsum dolorstoaehunsotehuolrceuh.sth,.lurchoe sotehu loceuh osetuh oelucrh, .sth olecuhoetuh osetnuh oesnuh., lrch, uaoesthuoesnthuoLorem ipsum dolorstoaehunsotehuolrceuh.sth,.lurchoe sotehu loceuh osetuh oelucrh, .sth olecuhoetuh osetnuh oesnuh., lrch, uaoesthuoesnthuo
+					</p>
+				</div>
+				<div class="flex items-center justify-between">
+					<button>Go Back</button>
+					<button>Go Forwards</button>
+				</div>
+			</section>
+			// concept check
 		</main>
 	}
 }

@@ -24,7 +24,7 @@ templ Dashboard(data types.TemplateData) {
 							</ul>
 							<div class="justify-end card-actions">
 								if course.Processed {
-									<a href={ templ.URL(fmt.Sprintf("/course/%s", course.ID)) }><button class="btn btn-primary">View Course</button></a>
+									<a href={ templ.URL(fmt.Sprintf("/course/%s/0/0", course.ID)) }><button class="btn btn-primary">View Course</button></a>
 								} else {
 									<a href={ templ.URL(fmt.Sprintf("/create/%s", course.ID)) }><button class="btn btn-secondary">Generate Course</button></a>
 								}
