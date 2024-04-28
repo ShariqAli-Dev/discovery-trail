@@ -40,7 +40,7 @@ templ Navbar(isAuthenticated bool, CSRFToken string) {
 				<h1 class="text-4xl font-bold text-center primary-content">Discovery Trail</h1>
 			</a>
 			<nav>
-				<a href="/create" class="mx-4 text-xl text-base-content">Create Course</a>
+				<a href="/create" class="mx-4 text-xl font-semibold text-base-content">Create Course</a>
 				@themeController()
 				<div class="dropdown dropdown-end">
 					<form action="/logout/google" method="post">

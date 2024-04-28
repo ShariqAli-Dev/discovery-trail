@@ -421,11 +421,69 @@ func (app *application) courseProcess(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) courseUnitChapter(w http.ResponseWriter, r *http.Request) {
+	courseID := r.PathValue("courseID")
+	course, err := app.courses.Get(courseID)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+	units, err := app.units.GetCourseUnits(courseID)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+	courseUnitsChapters := types.CourseWithUnitsWithChapters{
+		Course: course,
+		Units:  make([]types.UnitWithChapters, 0),
+	}
+
+	for _, unit := range units {
+		unitChapters, err := app.chapters.GetUnitChapters(unit.ID)
+		if err != nil {
+			app.serverError(w, r, err)
+			return
+		}
+		courseUnitsChapters.Units = append(courseUnitsChapters.Units, types.UnitWithChapters{
+			Chapters: unitChapters,
+			Unit:     unit,
+		})
+	}
 	data, err := app.newTemplateData(r)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
 	}
+	data.CourseUnitsChapters = courseUnitsChapters
 	courseView := pages.Course(data)
 	app.render(w, r, http.StatusOK, courseView)
+}
+
+type ChapterData struct {
+	Name string `json:"name"`
+}
+
+func (app *application) test(w http.ResponseWriter, r *http.Request) {
+	data, err := app.newTemplateData(r)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+	chapterID := r.Header.Get("chapter-id")
+	chapterIDInt, err := strconv.Atoi(chapterID)
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	chapter, err := app.chapters.Get(int64(chapterIDInt))
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+	fmt.Println(chapter)
+	unitid := r.Header.Get("course-id")
+	fmt.Println(chapterID)
+	fmt.Println(unitid)
+
+	createCourse := pages.CreateCourse(data)
+	app.render(w, r, http.StatusOK, createCourse)
 }

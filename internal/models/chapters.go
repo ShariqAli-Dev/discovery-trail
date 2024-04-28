@@ -50,6 +50,27 @@ func (m *ChapterModel) Insert(name, youtubeQuery string, unitID int64, summary s
 	_, err := m.DB.Exec(sqlStatement, name, youtubeQuery, unitID, QuestionStatuses[Pending].Value, summary, videoID)
 	return err
 }
+
+func (m *ChapterModel) GetUnitChapterNames(unitID int64) ([]string, error) {
+	sqlStatement := "SELECT name FROM chapters WHERE unit_id = ?"
+	rows, err := m.DB.Query(sqlStatement, unitID)
+	if err != nil {
+		return []string{}, nil
+	}
+
+	var chapterNames []string
+
+	for rows.Next() {
+		var chapterName string
+		err := rows.Scan(&chapterName)
+		if err != nil {
+			return []string{}, err
+		}
+		chapterNames = append(chapterNames, chapterName)
+	}
+	return chapterNames, rows.Err()
+}
+
 func (m *ChapterModel) GetUnitChapters(unitID int64) ([]Chapter, error) {
 	sqlStatement := "SELECT id, name, youtubeSearchQuery, videoID, summary, questionsStatus, questionAttempts FROM chapters WHERE unit_id = ?"
 	rows, err := m.DB.Query(sqlStatement, unitID)

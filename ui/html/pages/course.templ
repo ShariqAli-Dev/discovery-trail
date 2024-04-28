@@ -3,48 +3,51 @@ package pages
 import "github.com/shariqali-dev/discovery-trail/internal/types"
 import "github.com/shariqali-dev/discovery-trail/ui/html/partials"
 import "fmt"
+import "github.com/shariqali-dev/discovery-trail/internal/models"
+
+templ UnitInformation(chapter models.Chapter) {
+	<div>
+		<h4 class="text-xl font-semibold">Unit 1 | Chapter 2</h4>
+		<h2 class="text-3xl font-bold text-primary">The Great Chapter</h2>
+	</div>
+	<div>
+		<iframe
+			title="chapter video"
+			class="w-full my-4 aspect-video max-h-[24rem]"
+			src={ fmt.Sprintf("https://www.youtube.com/embed/%s", "testing") }
+			allowfullscreen
+		></iframe>
+		<h2 class="text-2xl font-semibold text-primary">Summary</h2>
+		<p>Chapter Summary</p>
+		<div class="flex items-center justify-between">
+			<button>Previous</button>
+			<button>Next</button>
+		</div>
+	</div>
+}
 
 templ Course(data types.TemplateData) {
 	@partials.BaseHTML("course", data, nil) {
 		@partials.Navbar(data.IsAuthenticated, data.CSRFToken)
 		<main class="flex flex-1 w-full p-4 m-auto ">
 			// navigation
-			<section class="flex flex-col ">
-				for ndx := range 10 {
-					<div>
-						<h3>Unit { fmt.Sprintf("%d",ndx + 1) }</h3>
-						<h2>Limits and continutiy</h2>
-						for i := 0; i < 3; i++ {
-							<p>i am a chapter</p>
+			<section class="flex flex-col p-2">
+				for udx, unit := range data.CourseUnitsChapters.Units {
+					<div class="w-full p-1 mt-4">
+						<div class="text-lg font-semibold">Unit { fmt.Sprintf("%d",udx + 1) }</div>
+						<div class="text-2xl text-primary font-bold max-w-[250px]">{ unit.Name }</div>
+						for _, chapter := range unit.Chapters {
+							<div class="my-4 text-lg font-semibold  max-w-[250px] menu-chapter" id={ fmt.Sprintf("menu-chapter-%d", chapter.ID) }>
+								{ chapter.Name }
+							</div>
 						}
+						<span class="block w-4/5 h-1 mx-auto mt-1 bg-neutral"></span>
 					</div>
 				}
 			</section>
 			// video section
-			<section class="flex-1 bg-slate-500">
-				<div>
-					<h4>Unit 1 * Chapter 1</h4>
-					<h2>Introduction to limits</h2>
-				</div>
-				<div>
-					<iframe
-						title="chapter video"
-						className="w-full mt-4 aspect-video max-h-[24rem]"
-						src="https://www.youtube.com/embed/EGW2HS2tqAQ"
-						allowFullScreen
-					></iframe>
-					<h2>Summary</h2>
-					<p>
-						Lorem ipsum dolorstoaehunsotehuolrceuh.sth,.lurchoe sotehu loceuh osetuh oelucrh, .sth olecuhoetuh osetnuh oesnuh., lrch, uaoesthuoesnthuos
-						Lorem ipsum dolorstoaehunsotehuolrceuh.sth,.lurchoe sotehu loceuh osetuh oelucrh, .sth olecuhoetuh osetnuh oesnuh., lrch, uaoesthuoesnthuo	
-						Lorem ipsum dolorstoaehunsotehuolrceuh.sth,.lurchoe sotehu loceuh osetuh oelucrh, .sth olecuhoetuh osetnuh oesnuh., lrch, uaoesthuoesnthuo
-						Lorem ipsum dolorstoaehunsotehuolrceuh.sth,.lurchoe sotehu loceuh osetuh oelucrh, .sth olecuhoetuh osetnuh oesnuh., lrch, uaoesthuoesnthuoLorem ipsum dolorstoaehunsotehuolrceuh.sth,.lurchoe sotehu loceuh osetuh oelucrh, .sth olecuhoetuh osetnuh oesnuh., lrch, uaoesthuoesnthuoLorem ipsum dolorstoaehunsotehuolrceuh.sth,.lurchoe sotehu loceuh osetuh oelucrh, .sth olecuhoetuh osetnuh oesnuh., lrch, uaoesthuoesnthuoLorem ipsum dolorstoaehunsotehuolrceuh.sth,.lurchoe sotehu loceuh osetuh oelucrh, .sth olecuhoetuh osetnuh oesnuh., lrch, uaoesthuoesnthuo
-					</p>
-				</div>
-				<div class="flex items-center justify-between">
-					<button>Go Back</button>
-					<button>Go Forwards</button>
-				</div>
+			<section hx-trigger="custom-chapter" hx-post="/course-chapter-information" hx-headers={ fmt.Sprintf(`{"X-CSRF-TOKEN": "%s"}`, data.CSRFToken) } class="flex-1 px-4" id="course-chapter-container">
+				// missing stuff for the section goes inside here,
 			</section>
 			// concept check
 		</main>
