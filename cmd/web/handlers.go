@@ -462,14 +462,11 @@ type ChapterData struct {
 	Name string `json:"name"`
 }
 
-func (app *application) test(w http.ResponseWriter, r *http.Request) {
-	data, err := app.newTemplateData(r)
-	if err != nil {
-		app.serverError(w, r, err)
-		return
-	}
-	chapterID := r.Header.Get("chapter-id")
-	chapterIDInt, err := strconv.Atoi(chapterID)
+func (app *application) ChapterInformation(w http.ResponseWriter, r *http.Request) {
+	chapterIDStr := r.Header.Get("chapter-id")
+	chapterIndexStr := r.Header.Get("chapter-index")
+	unitIndexStr := r.Header.Get("unit-index")
+	chapterIDInt, err := strconv.Atoi(chapterIDStr)
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
@@ -479,11 +476,6 @@ func (app *application) test(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, r, err)
 		return
 	}
-	fmt.Println(chapter)
-	unitid := r.Header.Get("course-id")
-	fmt.Println(chapterID)
-	fmt.Println(unitid)
-
-	createCourse := pages.CreateCourse(data)
-	app.render(w, r, http.StatusOK, createCourse)
+	ChapterInformation := pages.ChapterInformation(chapter, unitIndexStr, chapterIndexStr)
+	app.render(w, r, http.StatusOK, ChapterInformation)
 }

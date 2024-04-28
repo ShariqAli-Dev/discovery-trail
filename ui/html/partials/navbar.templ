@@ -2,6 +2,7 @@ package partials
 
 var themes = []string{
 	"autumn",
+	"nord",
 	"dracula",
 }
 
@@ -50,7 +51,7 @@ templ Navbar(isAuthenticated bool, CSRFToken string) {
 							</div>
 						</div>
 						<ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-							<li><a href="/profile">Profile</a></li>
+							// <li><a href="/profile">Profile</a></li>
 							<li>
 								<input type="hidden" name="csrf_token" value={ CSRFToken }/>
 								<button type="submit">Log Out</button>
@@ -68,7 +69,7 @@ templ Navbar(isAuthenticated bool, CSRFToken string) {
 			<nav>
 				@themeController()
 				<a class="text-xl btn btn-link" href="/auth/google">Log In</a>
-				<a class="text-lg btn btn-primary" href="/auth/google">Get Started</a>
+				// <a class="text-lg btn btn-primary" href="/auth/google">Get Started</a>
 			</nav>
 		</header>
 	}

@@ -5,42 +5,44 @@ import "github.com/shariqali-dev/discovery-trail/ui/html/partials"
 import "fmt"
 import "github.com/shariqali-dev/discovery-trail/internal/models"
 
-templ UnitInformation(chapter models.Chapter) {
-	<div>
-		<h4 class="text-xl font-semibold">Unit 1 | Chapter 2</h4>
-		<h2 class="text-3xl font-bold text-primary">The Great Chapter</h2>
+templ ChapterInformation(chapter models.Chapter, unitIndex string, chapterIndex string) {
+	<div class="active-chapter" id={ fmt.Sprintf("%d", chapter.ID) }>
+		<h4 class="text-xl font-semibold">Unit { unitIndex } | Chapter { chapterIndex }</h4>
+		<h2 class="text-3xl font-bold text-primary">{ chapter.Name }</h2>
 	</div>
 	<div>
 		<iframe
 			title="chapter video"
 			class="w-full my-4 aspect-video max-h-[24rem]"
-			src={ fmt.Sprintf("https://www.youtube.com/embed/%s", "testing") }
+			src={ fmt.Sprintf("https://www.youtube.com/embed/%s", chapter.VideoID.String) }
 			allowfullscreen
 		></iframe>
 		<h2 class="text-2xl font-semibold text-primary">Summary</h2>
-		<p>Chapter Summary</p>
-		<div class="flex items-center justify-between">
-			<button>Previous</button>
-			<button>Next</button>
-		</div>
+		<p>{ chapter.Summary.String }</p>
+		// <div class="flex items-center justify-between">
+		// 	<button>Previous</button>
+		// 	<button>Next</button>
+		// </div>
 	</div>
 }
 
 templ Course(data types.TemplateData) {
 	@partials.BaseHTML("course", data, nil) {
 		@partials.Navbar(data.IsAuthenticated, data.CSRFToken)
-		<main class="flex flex-1 w-full p-4 m-auto ">
+		<main class="flex flex-1 w-full max-w-5xl p-4 m-auto">
 			// navigation
 			<section class="flex flex-col p-2">
 				for udx, unit := range data.CourseUnitsChapters.Units {
 					<div class="w-full p-1 mt-4">
 						<div class="text-lg font-semibold">Unit { fmt.Sprintf("%d",udx + 1) }</div>
 						<div class="text-2xl text-primary font-bold max-w-[250px]">{ unit.Name }</div>
-						for _, chapter := range unit.Chapters {
-							<div class="my-4 text-lg font-semibold  max-w-[250px] menu-chapter" id={ fmt.Sprintf("menu-chapter-%d", chapter.ID) }>
-								{ chapter.Name }
-							</div>
-						}
+						<div id="menu-chapters">
+							for _, chapter := range unit.Chapters {
+								<div class="my-4 text-lg font-semibold  max-w-[250px] menu-chapter" id={ fmt.Sprintf("menu-chapter-%d", chapter.ID) }>
+									{ chapter.Name }
+								</div>
+							}
+						</div>
 						<span class="block w-4/5 h-1 mx-auto mt-1 bg-neutral"></span>
 					</div>
 				}

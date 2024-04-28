@@ -24,10 +24,12 @@ templ Create(data types.TemplateData) {
 						<button type="button" class="mr-4 btn btn-primary to-disable" id="button-add-unit">{ "<" } Add Unit</button>
 						<button type="button" class="ml-4 btn btn-primary to-disable" id="button-remove-unit">Remove Unit { ">" }</button>
 					</div>
-					<button type="submit" class="mr-4 to-disable bt-4 btn btn-link btn-primary">
-						Create	Course
-						<img id="indicator" class="htmx-indicator" src="/static/dist/spinner.gif"/>
-					</button>
+					<div class="flex flex-col items-center justify-between ">
+						<button type="submit" class="to-disable bt-4 btn btn-link btn-primary">
+							Create	Course
+						</button>
+						<img id="indicator" class="h-8 mt-4w-8 htmx-indicator" src="/static/dist/spinner.gif"/>
+					</div>
 					<p class="text-center">
 						{ fmt.Sprintf("%d",data.Account.Credits) } / 10 Free Generations
 					</p>

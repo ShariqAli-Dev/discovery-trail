@@ -14,17 +14,18 @@ buttonAddUnit?.addEventListener("click", () => {
 
   const newUnitDiv = document.createElement("div");
   newUnitDiv.className =
-    "flex flex-col items-start w-full sm:flex-row sm:items-center";
+    "flex flex-col items-start w-full mt-4 sm:flex-row sm:items-center";
 
   const label = document.createElement("label");
   label.htmlFor = `unit-${newUnitCount}`;
-  label.className = "flex-[1] text-xl";
+  label.className = "flex-[1] text-xl label";
   label.textContent = `Unit ${newUnitCount}`;
 
   const input = document.createElement("input");
   input.id = `unit-${newUnitCount}`;
   input.name = `unit-${newUnitCount}`;
-  input.className = "flex-[6]";
+  input.className = "flex-[6] text-lg input input-bordered";
+  input.placeholder = "Enter subtopic of the course (eg. Why learn htmx?)";
 
   newUnitDiv.appendChild(label);
   newUnitDiv.appendChild(input);

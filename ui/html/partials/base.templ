@@ -19,7 +19,7 @@ templ BaseHTML(jsFile string, data types.TemplateData, scriptSources []string) {
 				.htmx-request.htmx-indicator{opacity:1}
 			</style>
 		</head>
-		<body class="flex flex-col w-full h-full bg-base-200">
+		<body class="flex flex-col w-full h-full">
 			{ children... }
 			<script type="module" src="/static/dist/assets/index.js"></script>
 			for _, source := range scriptSources {

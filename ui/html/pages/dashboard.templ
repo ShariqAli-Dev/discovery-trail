@@ -9,7 +9,13 @@ import (
 templ Dashboard(data types.TemplateData) {
 	@partials.BaseHTML("dashboard", data, nil) {
 		@partials.Navbar(data.IsAuthenticated, data.CSRFToken)
-		<main class="flex flex-col flex-1 w-full max-w-5xl p-4 m-auto">
+		<main class="flex flex-col flex-1 w-full h-screen max-w-5xl p-4 m-auto">
+			if len(data.Courses) == 0 {
+				<section class="flex flex-col items-center justify-center flex-1">
+					<p class="text-xl text-center text-base-content">Looks like you have no courses!</p>
+					<p class="mt-8 text-xl text-center text-base-content">Go ahead and create on by clicking "Create Course".</p>
+				</section>
+			}
 			<section class="flex flex-wrap items-center justify-around flex-1">
 				for _, course := range data.Courses {
 					<div class="mb-4 border-4 rounded-sm shadow-sm border-accent card card-compact w-96 bg-base-100">
@@ -19,7 +25,7 @@ templ Dashboard(data types.TemplateData) {
 							<h4 class="text-lg font-semibold">Units</h4>
 							<ul>
 								for tdx, title := range course.UnitTitles {
-									<li class="text-lg link">Unit { fmt.Sprintf("%d", tdx + 1) }: { title }</li>
+									<li class="mt-4 text-lg link">Unit { fmt.Sprintf("%d", tdx + 1) }: { title }</li>
 								}
 							</ul>
 							<div class="justify-end card-actions">

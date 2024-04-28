@@ -1,46 +1,66 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const chapterID = localStorage.getItem("course-chapter-id");
-  const unitID = localStorage.getItem("course-unit-id");
+  // on page load, load the first element
   const courseSection = document.querySelector("#course-chapter-container");
+  const firstMenuChapter = document.querySelector(".menu-chapter");
+  const chapterID = firstMenuChapter?.id.split("menu-chapter-")[1];
 
   const hxHeader = JSON.parse(
     courseSection?.getAttribute("hx-headers") || "{}"
   );
   hxHeader["chapter-id"] = chapterID;
-  hxHeader["unit-id"] = unitID;
+  hxHeader["chapter-index"] = 1;
+  hxHeader["unit-index"] = 1;
   courseSection?.setAttribute("hx-headers", JSON.stringify(hxHeader));
-
   // @ts-expect-error
   htmx.trigger("#course-chapter-container", "custom-chapter");
-  console.log("made it to the trigger");
 });
 
 const menuChapters = document.querySelectorAll(".menu-chapter");
-menuChapters.forEach((chapter) => {
+menuChapters.forEach((chapter, cdx) => {
   if (chapter instanceof HTMLElement) {
     chapter.onclick = (event) => {
-      const chapterId = chapter.id.split("menu-chapter-")[1];
-      setAllOtherChaptersToHidden(chapterId);
+      // get the elements position
+      const chapterParentElement = chapter.parentNode;
+      if (!chapterParentElement) return;
+      const chapterID = chapter.id.split("menu-chapter-")[1];
+      const chapterIndex = getElementIndexOf(
+        chapterParentElement.children,
+        chapter
+      );
+      // disable if already active
+      const activeChapterElement = document.querySelector(".active-chapter");
+      if (chapterID === activeChapterElement?.id) return;
+
+      const unitElement = chapter.parentElement?.parentElement;
+      const unitElementParent = unitElement?.parentNode;
+      if (!unitElementParent) return;
+      const unitIndex = getElementIndexOf(
+        unitElementParent.children,
+        unitElement
+      );
+
+      // trigger the htmx call
+      const courseSection = document.querySelector("#course-chapter-container");
+      const hxHeader = JSON.parse(
+        courseSection?.getAttribute("hx-headers") || "{}"
+      );
+      hxHeader["chapter-id"] = chapterID;
+      hxHeader["chapter-index"] = chapterIndex + 1;
+      hxHeader["unit-index"] = unitIndex + 1;
+      courseSection?.setAttribute("hx-headers", JSON.stringify(hxHeader));
+      // @ts-expect-error
+      htmx.trigger("#course-chapter-container", "custom-chapter");
+
+      // set all other elements to hidden
     };
   }
-  return;
 });
 
 /**
- * Sets all chapters except the specified one to hidden.
- * @param {string} chapterID - The ID of the chapter to remain visible.
+ * Gets the index of the search element
+ * @param {HTMLCollection} parentElementChildren - The parent elements children
+ * @param {Element} searchElement - The search element
  */
-function setAllOtherChaptersToHidden(chapterID) {
-  const courseSection = document.querySelector("#course-chapter-container");
-  const unitID = localStorage.getItem("course-unit-id");
-
-  const hxHeader = JSON.parse(
-    courseSection?.getAttribute("hx-headers") || "{}"
-  );
-  hxHeader["chapter-id"] = chapterID;
-  hxHeader["unit-id"] = unitID;
-  courseSection?.setAttribute("hx-headers", JSON.stringify(hxHeader));
-
-  // @ts-expect-error
-  htmx.trigger("#course-chapter-container", "custom-chapter");
+function getElementIndexOf(parentElementChildren, searchElement) {
+  return Array.prototype.indexOf.call(parentElementChildren, searchElement);
 }
