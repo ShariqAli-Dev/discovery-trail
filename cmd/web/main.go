@@ -88,7 +88,7 @@ func main() {
 		WriteTimeout: 15 * time.Second,
 	}
 
-	err = server.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
+	err = server.ListenAndServe()
 	logger.Error(err.Error())
 	os.Exit(1)
 }

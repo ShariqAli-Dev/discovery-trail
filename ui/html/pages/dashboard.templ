@@ -19,7 +19,7 @@ templ Dashboard(data types.TemplateData) {
 			<section class="flex flex-wrap items-center justify-around flex-1">
 				for _, course := range data.Courses {
 					<div class="mb-4 border-4 rounded-sm shadow-sm border-accent card card-compact w-96 bg-base-100">
-						<figure><img src={ course.Image } alt="course image"/></figure>
+						<figure><img src={ course.Image } alt="course image" height="267" width="376"/></figure>
 						<div class="card-body">
 							<h3 class="font-bold card-title text-primary">{ course.Name }</h3>
 							<h4 class="text-lg font-semibold">Units</h4>

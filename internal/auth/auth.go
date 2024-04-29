@@ -27,6 +27,7 @@ func NewAuth(addr *string, store *sessions.CookieStore) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	isProd := os.Getenv("ENVIROMENT") == "production"
 
 	googleClientId := os.Getenv("GOOGLE_CLIENT_ID")
 	googleClientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
@@ -34,7 +35,13 @@ func NewAuth(addr *string, store *sessions.CookieStore) {
 	gothic.Store = store
 	gothic.GetProviderName = customGetProviderName
 	fmt.Println(*addr)
-	goth.UseProviders(
-		google.New(googleClientId, googleClientSecret, fmt.Sprintf("https://localhost%s/auth/google/callback", *addr)),
-	)
+	if isProd {
+		goth.UseProviders(
+			google.New(googleClientId, googleClientSecret, "https://discovery-trail.shariqapps.dev/auth/google/callback"),
+		)
+	} else {
+		goth.UseProviders(
+			google.New(googleClientId, googleClientSecret, fmt.Sprintf("http://localhost%s/auth/google/callback", *addr)),
+		)
+	}
 }
