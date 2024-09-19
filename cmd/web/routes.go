@@ -25,13 +25,14 @@ func (app *application) routes() http.Handler {
 	protected := dynamic.Append(app.requireAuthentication)
 	mux.Handle("GET /dashboard", protected.ThenFunc(app.dashboard))
 	mux.Handle("GET /create", protected.ThenFunc(app.create))
-	mux.Handle("POST /create", protected.ThenFunc(app.createPost))
-	mux.Handle("POST /logout/{provider}", protected.ThenFunc(app.logout))
 	mux.Handle("GET /create/{courseID}", protected.ThenFunc(app.createCourse))
+	mux.Handle("GET /course/{courseID}", protected.ThenFunc(app.courseUnitChapter))
+
+	mux.Handle("POST /create", protected.ThenFunc(app.createPost))
+	mux.Handle("POST /course-chapter-information", protected.ThenFunc(app.ChapterInformation))
 	mux.Handle("POST /chapter/{chapterID}/{cdx}", protected.ThenFunc(app.chapterStatusPost))
 	mux.Handle("POST /course/process/{courseID}", protected.ThenFunc(app.courseProcess))
-	mux.Handle("GET /course/{courseID}", protected.ThenFunc(app.courseUnitChapter))
-	mux.Handle("POST /course-chapter-information", protected.ThenFunc(app.ChapterInformation))
+	mux.Handle("POST /logout/{provider}", protected.ThenFunc(app.logout))
 
 	standard := alice.New(app.recoverPanic, app.logRequest, app.generateNonce, app.commonHeaders)
 	return standard.Then(mux)
