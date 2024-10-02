@@ -20,10 +20,53 @@ type CourseModelInterface interface {
 	All(account_id string) ([]Course, error)
 	Get(course_id string) (Course, error)
 	Process(courseID string) error
+	Delete(courseId string) error
 }
 
 type CourseModel struct {
 	DB *sql.DB
+}
+
+func (m *CourseModel) Delete(courseId string) error {
+	tx, err := m.DB.Begin()
+	if err != nil {
+		return err
+	}
+
+	sqlDeleteQuestions := "DELETE FROM questions WHERE chapter_id IN (SELECT id FROM chapters WHERE unit_id IN (SELECT id FROM units WHERE course_id = ?))"
+	_, err = tx.Exec(sqlDeleteQuestions, courseId)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	sqlDeleteChapters := "DELETE FROM chapters WHERE unit_id IN (SELECT id FROM units WHERE course_id = ?)"
+	_, err = tx.Exec(sqlDeleteChapters, courseId)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	sqlDeleteUnits := "DELETE FROM units WHERE course_id = ?"
+	_, err = tx.Exec(sqlDeleteUnits, courseId)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	sqlDeleteCourse := "DELETE FROM courses WHERE id = ?"
+	_, err = tx.Exec(sqlDeleteCourse, courseId)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (m *CourseModel) Insert(name, image, account_id string) (string, error) {

@@ -479,3 +479,12 @@ func (app *application) ChapterInformation(w http.ResponseWriter, r *http.Reques
 	ChapterInformation := pages.ChapterInformation(chapter, unitIndexStr, chapterIndexStr)
 	app.render(w, r, http.StatusOK, ChapterInformation)
 }
+
+func (app *application) deleteCourse(w http.ResponseWriter, r *http.Request) {
+	courseID := r.PathValue("courseID")
+	if err := app.courses.Delete(courseID); err != nil {
+		app.logger.Error("error deleting course", "error", err)
+	}
+	app.logger.Info("deleted course completely fine")
+
+}

@@ -34,6 +34,8 @@ func (app *application) routes() http.Handler {
 	mux.Handle("POST /course/process/{courseID}", protected.ThenFunc(app.courseProcess))
 	mux.Handle("POST /logout/{provider}", protected.ThenFunc(app.logout))
 
+	mux.Handle("POST /course/delete/{courseID}", protected.ThenFunc(app.deleteCourse))
+
 	standard := alice.New(app.recoverPanic, app.logRequest, app.generateNonce, app.commonHeaders)
 	return standard.Then(mux)
 }

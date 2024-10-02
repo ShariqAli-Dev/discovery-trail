@@ -4,6 +4,8 @@ css:
 	cd ./ui/static && npx tailwindcss -i ./src/input.css -o ./public/global.css --watch
 static:
 	cd ./ui/static && npx vite build 
+build-formatter:
+	go build -o ./bin/template_formatter ./cmd/template_formatter
 build: static
 	go build -o ./bin/web ./cmd/web
 run: static

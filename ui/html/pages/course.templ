@@ -35,10 +35,10 @@ templ Course(data types.TemplateData) {
 				for udx, unit := range data.CourseUnitsChapters.Units {
 					<div class="w-full p-1 mt-4">
 						<div class="text-lg font-semibold">Unit { fmt.Sprintf("%d",udx + 1) }</div>
-						<div class="text-2xl text-primary font-bold max-w-[250px]">{ unit.Name }</div>
+						<div class="text-2xl text-primary font-bold max-w-[250px] cursor-pointer" role="button" aria-label="unit title">{ unit.Name }</div>
 						<div id="menu-chapters">
 							for _, chapter := range unit.Chapters {
-								<div class="my-4 text-lg font-semibold  max-w-[250px] menu-chapter" id={ fmt.Sprintf("menu-chapter-%d", chapter.ID) }>
+								<div class="my-4 text-lg font-semibold  max-w-[250px] menu-chapter cursor-pointer" id={ fmt.Sprintf("menu-chapter-%d", chapter.ID) } aria-label="chapter name" role="button">
 									{ chapter.Name }
 								</div>
 							}
